@@ -18,3 +18,13 @@ C:\Users\Morcado\Desktop\Proyecto archivos\Proyecto\bin\Debug\Proyecto.pdb
 C:\Users\Morcado\Desktop\Proyecto archivos\Proyecto\obj\Debug\Proyecto.exe
 C:\Users\Morcado\Desktop\Proyecto archivos\Proyecto\obj\Debug\Proyecto.pdb
 C:\Users\Morcado\Desktop\Proyecto archivos\Proyecto\obj\Debug\Proyecto.csprojResolveAssemblyReference.cache
+C:\Users\Morcado\Desktop\Archivos\Proyecto\obj\Debug\Proyecto.exe
+C:\Users\Morcado\Desktop\Archivos\Proyecto\obj\Debug\Proyecto.pdb
+C:\Users\Morcado\Desktop\Archivos\Proyecto\bin\Debug\Proyecto.exe
+C:\Users\Morcado\Desktop\Archivos\Proyecto\bin\Debug\Proyecto.pdb
+C:\Users\Morcado\Desktop\Archivos\Proyecto\obj\Debug\Proyecto.csprojResolveAssemblyReference.cache
+C:\Users\Morcado\Desktop\Archivos\Proyecto\obj\Debug\Proyecto.DataBase.resources
+C:\Users\Morcado\Desktop\Archivos\Proyecto\obj\Debug\Proyecto.Properties.Resources.resources
+C:\Users\Morcado\Desktop\Archivos\Proyecto\obj\Debug\Proyecto.csproj.GenerateResource.Cache
+C:\Users\Morcado\Desktop\Archivos\Proyecto\obj\Debug\Proyecto.EntityDialog.resources
+C:\Users\Morcado\Desktop\Archivos\Proyecto\obj\Debug\Proyecto.AttributeDialog.resources

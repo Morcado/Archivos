@@ -8,22 +8,22 @@ using System.Text;
 using System.Windows.Forms;
 
 namespace Proyecto {
-    public partial class AddModifyEntity : Form {
+    public partial class EntityDialog : Form {
         public string name;
-        public AddModifyEntity(int type) {
+        public EntityDialog(int type) {
             
             InitializeComponent();
             switch (type) {
                 // New atribute
                 case 0:
                     this.Text = "New entity";
+                    label2.Text = "New entity name:";
                     break;
-                case 1:
+                case 2:
                     this.Text = "Modify entity";
                     break;
                 case 3:
-                    this.Text = "New file";
-                    this.label2.Text = "Name: ";
+                    this.Text = "Delete entity";
                     break;
             }
             button2.CausesValidation = false;
@@ -35,14 +35,6 @@ namespace Proyecto {
             Close();
         }
 
-        private void textBox1_Validating(object sender, CancelEventArgs e) {
-            if (textBox1.Text.Trim() == "") {
-                errorProvider1.SetError(textBox1, "Name is required");
-                e.Cancel = true;
-                return;
-            }
-            // Name is Valid
-            errorProvider1.SetError(textBox1, "");
-        }
+
     }
 }
