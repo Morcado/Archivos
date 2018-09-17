@@ -6,10 +6,10 @@ using System.Text;
 namespace Proyecto {
     public partial class DataBase {
         /* Searches for an entity in "data". If entity does not exists, return false
-           And return "ant". Otherwise returns true and "i" and "ant" are important
+           And return "ant". Otherwise returns true and "i" and "ant" have current address and previous address
            If list is empty: return false, index = -1, ant = ,1
            If found first element: return true, index = head, ant = -1
-           If found after first element: return true, index = ultimo */
+           If found after first element: return true, index = address */
         private bool SearchEntity(string name, ref long index, ref long ant) {
             index = BitConverter.ToInt64(data.ToArray(), 0);
             string entityName = "";
@@ -93,7 +93,7 @@ namespace Proyecto {
             return false;
         }
 
-        // Modify and entity
+        // Modify an entity
         private bool ModifyEntity(string newName, ref long index) {
             long aux = index, index2 = -1, ant2 = -1;
 

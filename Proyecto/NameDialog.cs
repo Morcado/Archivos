@@ -8,9 +8,9 @@ using System.Text;
 using System.Windows.Forms;
 
 namespace Proyecto {
-    public partial class EntityDialog : Form {
+    public partial class NameDialog : Form {
         public string name;
-        public EntityDialog(int type) {
+        public NameDialog(int type) {
             
             InitializeComponent();
             switch (type) {
@@ -24,6 +24,14 @@ namespace Proyecto {
                     break;
                 case 3:
                     this.Text = "Delete entity";
+                    break;
+                case 4:
+                    this.Text = "Modify attribute";
+                    label2.Text = "Attribute name";
+                    break;
+                case 5:
+                    this.Text = "Delete attribute";
+                    label2.Text = "Attribute name";
                     break;
             }
             button2.CausesValidation = false;

@@ -206,13 +206,13 @@ namespace Proyecto {
 
         // When user click Add entity, add entity to the current "data"
         private void btnAddEntity(object sender, EventArgs e) {
-            EntityDialog dg = new EntityDialog(0);
+            NameDialog dg = new NameDialog(0);
             dg.ShowDialog();
             if (dg.DialogResult == DialogResult.OK) {
                 if (AddEntity(dg.name)) {
+                    UpdateTable();
                     MessageBox.Show("Entity added", "Success");
                     WriteBinary();
-                    UpdateTable();
                 }
                 else {
                     MessageBox.Show("Error: entity already in dictionary", "Error");
@@ -240,19 +240,19 @@ namespace Proyecto {
         // Add attribute to a selected entity
         private void btnAddAtribute(object sender, EventArgs e) {
             AttributeDialog dg = new AttributeDialog(0);
-            long index = -1, ant = -1;
             dg.ShowDialog();
             if (dg.DialogResult == DialogResult.OK) {
-                SearchEntity(comboBox1.Text, ref index, ref ant);
                 // list of entities
-                AddAttribute(dg.name, dg.type, dg.length, dg.indexType, index);
+                AddAttribute(dg.name, dg.type, dg.length, dg.indexType);
                 UpdateAttribTable(comboBox1.Text);
                 MessageBox.Show("Attribute added successfully");
+                WriteBinary();
             }
         }
 
+        // Remove entity
         private void btnRemoveEntity(object sender, EventArgs e) {
-            EntityDialog et = new EntityDialog(3);
+            NameDialog et = new NameDialog(3);
             et.ShowDialog();
             if (et.DialogResult == DialogResult.OK) {
                 if (DeleteEntity(et.name)) {
@@ -266,13 +266,14 @@ namespace Proyecto {
             }
         }
 
+        // Modify entity
         private void btnModifyEntity(object sender, EventArgs e) {
-            EntityDialog et = new EntityDialog(2);
+            NameDialog et = new NameDialog(2);
             long index = -1, ant = -1;
             et.ShowDialog();
             if (et.DialogResult == DialogResult.OK) {
                 if (SearchEntity(et.name, ref index, ref ant)) {
-                    EntityDialog etn = new EntityDialog(0);
+                    NameDialog etn = new NameDialog(0);
                     etn.ShowDialog();
                     if (etn.DialogResult == DialogResult.OK) {
                         if (ModifyEntity(etn.name, ref index)) {
@@ -304,6 +305,7 @@ namespace Proyecto {
             }
         }
 
+        // Shows every attribute for the selected entity
         private void UpdateAttribTable(string entity) {
             long index = -1, ant = -1, dirAttrib;
             byte[] dataPrint = data.ToArray();
@@ -312,21 +314,65 @@ namespace Proyecto {
             // Add attributes of each
             dirAttrib = BitConverter.ToInt64(dataPrint, (int)index + 38);
             while (dirAttrib != -1) {
-                string aName = Encoding.UTF8.GetString(dataPrint, (int)dirAttrib, 30);
+                string aName = Encoding.UTF8.GetString(dataPrint, (int)dirAttrib, 30).Replace("~", "");
                 //dir atrib
                 char aType = BitConverter.ToChar(dataPrint, (int)dirAttrib + 38);
                 int aLength = BitConverter.ToInt32(dataPrint, (int)dirAttrib + 40);
                 int iType = BitConverter.ToInt32(dataPrint, (int)dirAttrib + 44);
                 long iAddress = BitConverter.ToInt64(dataPrint, (int)dirAttrib + 48);
                 long nextAttribute = BitConverter.ToInt64(dataPrint, (int)dirAttrib + 56);
-
                 dataGridView2.Rows.Add(aName, dirAttrib, aType, aLength, iType, iAddress, nextAttribute);
+                dirAttrib = nextAttribute;
             }
             dataGridView2.Sort(dataGridView2.Columns["Attribute address"], ListSortDirection.Ascending);
         }
 
         private void comboBox1_TextChanged(object sender, EventArgs e) {
             UpdateAttribTable(comboBox1.Text);
+        }
+        
+        // Modify attribute
+        private void btnModifyAttribute(object sender, EventArgs e) {
+            NameDialog ed = new NameDialog(4);
+            long aIndex = -1, eIndex = -1, aAnt = -1, eAnt = -1;
+            SearchEntity(comboBox1.Text, ref eIndex, ref eAnt);
+            
+            ed.ShowDialog();
+            // If atttribute exists
+            if (ed.DialogResult == DialogResult.OK) {
+                if (SearchAttribute(ed.name, ref aIndex, ref aAnt, eIndex)) {
+                    AttributeDialog ad = new AttributeDialog(1);
+                    ad.ShowDialog();
+                    // Get new attribute data
+                    if (ad.DialogResult == DialogResult.OK) {
+                        // Modify on data
+                        ModifyAttribute(aIndex, ad.name, ad.type, ad.length, ad.indexType);
+                        WriteBinary();
+                        UpdateAttribTable(comboBox1.Text);
+                        MessageBox.Show("Attribute modified successfully");
+                    }
+                }
+                else {
+                    MessageBox.Show("Attribute not found");
+                }
+            }
+        }
+
+        // Delete attribute
+        private void btnRemoveAttribute(object sender, EventArgs e) {
+            NameDialog ed = new NameDialog(5);
+            ed.ShowDialog();
+            if (ed.DialogResult == DialogResult.OK) {
+                if (DeleteAttribute(ed.name)) {
+                    UpdateAttribTable(comboBox1.Text);
+                    UpdateTable();
+                    MessageBox.Show("Attribute deleted");
+                    WriteBinary();
+                }
+                else {
+                    MessageBox.Show("Attribute not found");
+                }
+            }
         }
     }
 }

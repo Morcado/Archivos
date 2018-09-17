@@ -50,11 +50,11 @@
     <Compile Include="AttributeDialog.Designer.cs">
       <DependentUpon>AttributeDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="EntityDialog.cs">
+    <Compile Include="NameDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="EntityDialog.Designer.cs">
-      <DependentUpon>EntityDialog.cs</DependentUpon>
+    <Compile Include="NameDialog.Designer.cs">
+      <DependentUpon>NameDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="AttributeAlgorithms.cs">
       <SubType>Form</SubType>
@@ -70,8 +70,8 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="EntityDialog.resx">
-      <DependentUpon>EntityDialog.cs</DependentUpon>
+    <EmbeddedResource Include="NameDialog.resx">
+      <DependentUpon>NameDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="DataBase.resx">
       <DependentUpon>DataBase.cs</DependentUpon>

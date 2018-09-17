@@ -32,11 +32,18 @@ namespace Proyecto {
         }
 
         private void button1_Click(object sender, EventArgs e) {
-            name = textBox1.Text;
-            type = comboBox2.Text[0];
-            length = Convert.ToInt32(numericUpDown1.Value);
-            indexType = Convert.ToInt32(comboBox3.Text[0]) - 48;
-            DialogResult = DialogResult.OK;
+            if (textBox1.Text != "" && comboBox2.SelectedIndex != -1 && numericUpDown1.Value != 0 && comboBox3.SelectedIndex != -1) {
+
+                name = textBox1.Text;
+                type = comboBox2.Text[0];
+                length = Convert.ToInt32(numericUpDown1.Value);
+                indexType = Convert.ToInt32(comboBox3.Text[0]) - 48;
+                DialogResult = DialogResult.OK;
+                Close();
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e) {
             Close();
         }
     }

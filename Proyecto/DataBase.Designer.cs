@@ -223,21 +223,23 @@
             // 
             // button6
             // 
-            this.button6.Location = new System.Drawing.Point(21, 123);
+            this.button6.Location = new System.Drawing.Point(21, 94);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(130, 23);
             this.button6.TabIndex = 3;
             this.button6.Text = "Modify attribute";
             this.button6.UseVisualStyleBackColor = true;
+            this.button6.Click += new System.EventHandler(this.btnModifyAttribute);
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(21, 94);
+            this.button4.Location = new System.Drawing.Point(21, 123);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(130, 23);
             this.button4.TabIndex = 2;
             this.button4.Text = "Delete attribute";
             this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.btnRemoveAttribute);
             // 
             // button3
             // 
