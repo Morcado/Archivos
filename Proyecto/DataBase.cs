@@ -14,20 +14,31 @@ namespace Proyecto {
         private BinaryReader br;
         private string fileName;
         private List<byte> data;
+        private List<byte> register;
         private long head;
-        
+        private long selectedEntityAdrs;
+
         public DataBase() {
             InitializeComponent();
+            selectedEntityAdrs = -1;
             button1.Enabled = false;
             button2.Enabled = false;
             button5.Enabled = false;
             button3.Enabled = false;
             button4.Enabled = false;
             button6.Enabled = false;
+            button9.Enabled = false;
+            button10.Enabled = false;
+            button7.Enabled = false;
+            button8.Enabled = false;
             data = new List<byte>();
+            register = new List<byte>();
         }
 
-        // Creates a new bin file and set the head to -1
+        #region New, Open, Exit
+
+        /* Crea un nuevo archivo binario y establece la cabecera en -1. El nombre del
+         * archivo es elegido, y el diccionario de datos se guarda con este nombre */
         private void NewFile(object sender, EventArgs e) {
             SaveFileDialog save = new SaveFileDialog();
             save.Filter = "Binary file (*.bin)|*.bin|All files (*.*)|*.*";
@@ -36,6 +47,7 @@ namespace Proyecto {
             if (save.ShowDialog() == DialogResult.OK) {
                 fileName = save.FileName;
                 try {
+                    // Crea el archivo del diccionario de datos
                     bw = new BinaryWriter(new FileStream(fileName, FileMode.Create));
                     bw.Close();
                 }
@@ -44,6 +56,7 @@ namespace Proyecto {
                     return;
                 }
 
+                // Inicializa los botones de la interfaz del usuario
                 button1.Enabled = true;
                 button2.Enabled = true;
                 button5.Enabled = true;
@@ -52,15 +65,15 @@ namespace Proyecto {
                 button6.Enabled = false;
                 InitializeTables();
 
-                // Add head
+                // Añade la cabecera con el valor de -1 y la escribe en el archivo
                 data.AddRange(BitConverter.GetBytes((long)(-1)));
                 head = -1;
-                WriteBinary();
+                WriteBinary(fileName);
                 textBox1.Text = head.ToString();
             }
         }
 
-        // Open a bin file and save it to "data"
+        // Abre un archivo binario y lo guarda en "data"
         private void OpenFile(object sender, EventArgs e) {
             OpenFileDialog open = new OpenFileDialog();
             open.InitialDirectory = Application.StartupPath + "\\examples";
@@ -80,40 +93,24 @@ namespace Proyecto {
                 button2.Enabled = true;
                 button5.Enabled = true;
 
-                // Read all data into a byte array and store in "data"
+                // Lee todos los datos en un byte array y los almacena en una lista de bytes "data"
                 data = br.ReadBytes((int)(new FileInfo(open.FileName).Length)).ToList();
+                // Obtiene la cabecera
                 head = BitConverter.ToInt64(data.ToArray(), 0);
                 br.Close();
                 InitializeTables();
-                UpdateTable();
+                UpdateEntityTable();
             }
         }
 
-        // Updates the table when needed and the head, keep it sorted by address
-        private void UpdateTable() {
-            textBox1.Text = head.ToString();
-            long aux = head;
-            byte[] dataPrint = data.ToArray();
-            dataGridView1.Rows.Clear();
-            comboBox1.Items.Clear();
-            while (aux != -1) {
-                string name = Encoding.UTF8.GetString(dataPrint, (int)aux, 30);
-                name = name.Replace("~", "");
-                comboBox1.Items.Add(name);
-                long dirEntity = BitConverter.ToInt64(dataPrint, (int)aux + 30);
-                long dirAttrib = BitConverter.ToInt64(dataPrint, (int)aux + 38);
-                long dirData = BitConverter.ToInt64(dataPrint, (int)aux + 46);
-                long nextEntity = BitConverter.ToInt64(dataPrint, (int)aux + 54);
-                dataGridView1.Rows.Add(name, dirEntity, dirAttrib, dirData, nextEntity);
-                aux = BitConverter.ToInt64(dataPrint, (int)aux + 54);
-
-
-            }
-            dataGridView1.Sort(dataGridView1.Columns["Entity address"], ListSortDirection.Ascending);
+        // Cierra la aplicación
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e) {
+            Application.Exit();
         }
 
-
-        // Initializes the table with main columns
+        #endregion
+        #region Extras
+        /* Inicializa la tabla de entidades y de atributos con sus columnas por defecto */
         private void InitializeTables() {
             var col1 = new DataGridViewTextBoxColumn();
             var col2 = new DataGridViewTextBoxColumn();
@@ -189,13 +186,31 @@ namespace Proyecto {
             cl7.Width = 60;
             cl7.Resizable = DataGridViewTriState.False;
 
-            dataGridView2.Columns.AddRange(new DataGridViewColumn[] { cl1, cl2, cl3, cl4, cl5, cl6, cl7});
+            dataGridView2.Columns.AddRange(new DataGridViewColumn[] { cl1, cl2, cl3, cl4, cl5, cl6, cl7 });
         }
 
-        // Function called every time an entity or an attribute is added to the database
-        private void WriteBinary() {
+        // Reemplaza n bytes especificados por el índice en el archivo
+        private void ReplaceBytes(List<byte> dat, long index, long newData) {
+            byte[] newBytes = BitConverter.GetBytes(newData);
+            // check
+            for (int i = (int)index; i < index + newBytes.Length; i++) {
+                dat[i] = newBytes[i - (int)index];
+            }
+        }
+
+        // Reemplaza n bytes especificados por el índice en el archivo
+        private void ReplaceBytes(List<byte> dat, long index, byte[] newData) {
+            // check
+            for (int i = (int)index; i < index + newData.Length; i++) {
+                dat[i] = newData[i - (int)index];
+            }
+        }
+
+        /* Guarda el archivo en binario cada vez que se agrega una entidad o atributo. 
+         Este método guarda todo el arreglo de bytes en el archivo, sin hacer ninguna conversión */
+        private void WriteBinary(string name) {
             try {
-                bw = new BinaryWriter(new FileStream(fileName, FileMode.Create));
+                bw = new BinaryWriter(new FileStream(name, FileMode.Create));
                 bw.Write(data.ToArray());
                 bw.Close();
             }
@@ -204,15 +219,71 @@ namespace Proyecto {
             }
         }
 
-        // When user click Add entity, add entity to the current "data"
+        private void WriteRegBinary(string name) {
+            try {
+                bw = new BinaryWriter(new FileStream(Application.StartupPath + "\\examples\\" + name + ".dat", FileMode.Create));
+                bw.Write(register.ToArray());
+                bw.Close();
+            }
+            catch (IOException ex) {
+                MessageBox.Show("Error al guardar: " + ex.ToString());
+            }
+        }
+
+        private List<byte> ReadRegisterBinary(string name) {
+            try {
+                br = new BinaryReader(new FileStream(Application.StartupPath + "\\examples\\" + name + ".dat", FileMode.Open));
+                register = br.ReadBytes((int)(new FileInfo(Application.StartupPath + "\\examples\\" + name + ".dat").Length)).ToList();
+                br.Close();
+            }
+            catch (IOException ex) {
+                Console.WriteLine(ex.Message + "\n Cannot open file.");
+            }
+            return register;
+        }
+
+        #endregion
+        #region Entity
+
+        /* Actualiza la tabla de entidades y la cabecera con la lista de bytes, mantiene ordenados
+        los datos en la tabla, por su direccion en el archivo*/
+        private void UpdateEntityTable() {
+            textBox1.Text = head.ToString();
+            long aux = head;
+            byte[] dataPrint = data.ToArray();
+            dataGridView1.Rows.Clear();
+            comboBox1.Items.Clear();
+            comboBox2.Items.Clear();
+            // Recorre las direcciones de las entidades hasta que la siguiente sea -1 (llegue al final)
+            while (aux != -1) {
+                /* Obtiene el nombre, la dirección de la entidad, la dirección de los atributos 
+                 la dirección del primer dato, y la dirección de la siguiente entidad */
+                string name = Encoding.UTF8.GetString(dataPrint, (int)aux, 30);
+                name = name.Replace("~", "");
+                comboBox1.Items.Add(name);
+                comboBox2.Items.Add(name);
+                long dirEntity = BitConverter.ToInt64(dataPrint, (int)aux + 30);
+                long dirAttrib = BitConverter.ToInt64(dataPrint, (int)aux + 38);
+                long dirData = BitConverter.ToInt64(dataPrint, (int)aux + 46);
+                long nextEntity = BitConverter.ToInt64(dataPrint, (int)aux + 54);
+                dataGridView1.Rows.Add(name, dirEntity, dirAttrib, dirData, nextEntity);
+                aux = BitConverter.ToInt64(dataPrint, (int)aux + 54);
+            }
+            // Ordena las entidades por la dirección en el archivo
+            dataGridView1.Sort(dataGridView1.Columns["Entity address"], ListSortDirection.Ascending);
+        }
+
+        /* Evento del boton que agrega una entidad en el archivo
+         * Las entidades son insertadas ordenadas y primero se verifica que no exista la entidad antes de
+         * insertarla. El largo maximo del nombre de la entidad es de 30 caracteres */
         private void btnAddEntity(object sender, EventArgs e) {
             NameDialog dg = new NameDialog(0);
             dg.ShowDialog();
             if (dg.DialogResult == DialogResult.OK) {
                 if (AddEntity(dg.name)) {
-                    UpdateTable();
+                    UpdateEntityTable();
                     MessageBox.Show("Entity added", "Success");
-                    WriteBinary();
+                    WriteBinary(fileName);
                 }
                 else {
                     MessageBox.Show("Error: entity already in dictionary", "Error");
@@ -220,44 +291,16 @@ namespace Proyecto {
             }
         }
 
-        // Replace n bytes in data from the expecified index
-        private void ReplaceBytes(long index, long newData) {
-            byte[] newBytes = BitConverter.GetBytes(newData);
-            // check
-            for (int i = (int)index; i < index + newBytes.Length; i++) {
-                data[i] = newBytes[i - (int)index];
-            }
-        }
 
-        // Replace n bytes with an array of bytes
-        private void ReplaceBytes(long index, byte[] newData) {
-            // check
-            for (int i = (int)index; i < index + newData.Length; i++) {
-                data[i] = newData[i - (int)index];
-            }
-        }
-
-        // Add attribute to a selected entity
-        private void btnAddAtribute(object sender, EventArgs e) {
-            AttributeDialog dg = new AttributeDialog(0);
-            dg.ShowDialog();
-            if (dg.DialogResult == DialogResult.OK) {
-                // list of entities
-                AddAttribute(dg.name, dg.type, dg.length, dg.indexType);
-                UpdateAttribTable(comboBox1.Text);
-                MessageBox.Show("Attribute added successfully");
-                WriteBinary();
-            }
-        }
-
-        // Remove entity
+        /* Elimina una entidad del archivo, sólo elimina la referencia, el archivo
+        queda del mismo tamaño. Primero verifica que la entidad exista, si existe la elimina */
         private void btnRemoveEntity(object sender, EventArgs e) {
             NameDialog et = new NameDialog(3);
             et.ShowDialog();
             if (et.DialogResult == DialogResult.OK) {
                 if (DeleteEntity(et.name)) {
-                    WriteBinary();
-                    UpdateTable();
+                    UpdateEntityTable();
+                    WriteBinary(fileName);
                     MessageBox.Show("Entity deleted", "Success");
                 }
                 else {
@@ -266,20 +309,23 @@ namespace Proyecto {
             }
         }
 
-        // Modify entity
+        /* Modifica una entidad. Se reemplazan los datos en la misma dirección del archivo y
+         * por lo tanto el tamaño del archivo no se modifica. Primero se verifica que la entidad existe,
+         * y después se piden los nuevos datos para reemplazar a los viejos */
         private void btnModifyEntity(object sender, EventArgs e) {
             NameDialog et = new NameDialog(2);
             long index = -1, ant = -1;
             et.ShowDialog();
             if (et.DialogResult == DialogResult.OK) {
                 if (SearchEntity(et.name, ref index, ref ant)) {
+                    // Se obtiene el nuevo nombre de la entidad
                     NameDialog etn = new NameDialog(0);
                     etn.ShowDialog();
                     if (etn.DialogResult == DialogResult.OK) {
                         if (ModifyEntity(etn.name, ref index)) {
                             MessageBox.Show("Entity modified successfully");
-                            WriteBinary();
-                            UpdateTable();
+                            WriteBinary(fileName);
+                            UpdateEntityTable();
                         }
                         else {
                             MessageBox.Show("Error: entity not modified");
@@ -292,8 +338,11 @@ namespace Proyecto {
             }
         }
 
+        #endregion
+        #region Attribute
+        /* Se valida que se eliga una entidad del combo box para poder agregar, eliminar o modificar atributos */
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e) {
-            if (comboBox1.SelectedIndex == -1) {
+            if (comboBox1.SelectedIndex == -1 || BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 46) != -1) {
                 button3.Enabled = false;
                 button4.Enabled = false;
                 button6.Enabled = false;
@@ -305,15 +354,17 @@ namespace Proyecto {
             }
         }
 
-        // Shows every attribute for the selected entity
+        /* Actualiza la tabla de atributos de la entidad seleccionada. Primero se busca la entidad en el archivo, 
+         * después se localiza la dirección de los atributos de esa entidad y se recorren hasta que el siguiente sea -1.
+         * Los atributos son ordenados en la tabla por su dirección en el archivo*/
         private void UpdateAttribTable(string entity) {
-            long index = -1, ant = -1, dirAttrib;
+            long dirAttrib;
             byte[] dataPrint = data.ToArray();
             dataGridView2.Rows.Clear();
-            SearchEntity(entity, ref index, ref ant);
-            // Add attributes of each
-            dirAttrib = BitConverter.ToInt64(dataPrint, (int)index + 38);
+            dirAttrib = BitConverter.ToInt64(dataPrint, (int)selectedEntityAdrs + 38);
             while (dirAttrib != -1) {
+                /* Se obtiene el nombre del atributo, el tipo, el tamaño, el tipo de indice, la dirección del indice
+                 y la dirección del siguiente atributo */
                 string aName = Encoding.UTF8.GetString(dataPrint, (int)dirAttrib, 30).Replace("~", "");
                 //dir atrib
                 char aType = BitConverter.ToChar(dataPrint, (int)dirAttrib + 38);
@@ -327,27 +378,57 @@ namespace Proyecto {
             dataGridView2.Sort(dataGridView2.Columns["Attribute address"], ListSortDirection.Ascending);
         }
 
+        // Actualiza la tabla de atributos eligiendo una entidad del combobox1
         private void comboBox1_TextChanged(object sender, EventArgs e) {
-            UpdateAttribTable(comboBox1.Text);
-        }
-        
-        // Modify attribute
-        private void btnModifyAttribute(object sender, EventArgs e) {
-            NameDialog ed = new NameDialog(4);
-            long aIndex = -1, eIndex = -1, aAnt = -1, eAnt = -1;
+            long eIndex = -1, eAnt = -1;
             SearchEntity(comboBox1.Text, ref eIndex, ref eAnt);
+            selectedEntityAdrs = eIndex;
+            UpdateAttribTable(comboBox1.Text);
+
+            if (comboBox1.Text != "" && BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 46) != -1) {
+                button3.Enabled = false;
+                button4.Enabled = false;
+                button6.Enabled = false;
+            }
+            else {
+                button3.Enabled = true;
+                button4.Enabled = true;
+                button6.Enabled = true;
+
+            }
+            
+        }
+
+        /* Agrega un atributo a la entidad seleccionada. Primero se verifica que el atributo no exista.
+         * Los atributos se agregan secuencialmente al final del archivo */
+        private void btnAddAtribute(object sender, EventArgs e) {
+            AttributeDialog dg = new AttributeDialog(0);
+            dg.ShowDialog();
+            if (dg.DialogResult == DialogResult.OK) {
+                AddAttribute(dg.name, dg.type, dg.length, dg.indexType);
+                UpdateAttribTable(comboBox1.Text);
+                MessageBox.Show("Attribute added successfully");
+                WriteBinary(fileName);
+            }
+        }
+
+        /* Modifica un atributo de la entidad seleccionada. Primero se verifica que el atributo exista y
+        después se modifica la dirección, por lo tanto el tamaño del archivo no se modifica. */
+        private void BtnModifyAttribute(object sender, EventArgs e) {
+            NameDialog ed = new NameDialog(4);
+            long aIndex = -1, aAnt = -1;
             
             ed.ShowDialog();
-            // If atttribute exists
             if (ed.DialogResult == DialogResult.OK) {
-                if (SearchAttribute(ed.name, ref aIndex, ref aAnt, eIndex)) {
+                if (SearchAttribute(ed.name, ref aIndex, ref aAnt)) {
                     AttributeDialog ad = new AttributeDialog(1);
                     ad.ShowDialog();
-                    // Get new attribute data
+                    /* Obtiene los nuevos datos del atributo. Se reemplazan el nombre, el tipo
+                     * el tamaño, y el tipo de índice*/
                     if (ad.DialogResult == DialogResult.OK) {
-                        // Modify on data
+                        // Se modifica en el arreglo de binario
                         ModifyAttribute(aIndex, ad.name, ad.type, ad.length, ad.indexType);
-                        WriteBinary();
+                        WriteBinary(fileName);
                         UpdateAttribTable(comboBox1.Text);
                         MessageBox.Show("Attribute modified successfully");
                     }
@@ -358,19 +439,231 @@ namespace Proyecto {
             }
         }
 
-        // Delete attribute
+        /* Elimina la referencia del atributo en el archivo de la entidad seleccionada. El tamaño del
+         * archivo no se modifica. Se enlaza el atributo anterior con el siguiente */
         private void btnRemoveAttribute(object sender, EventArgs e) {
             NameDialog ed = new NameDialog(5);
             ed.ShowDialog();
             if (ed.DialogResult == DialogResult.OK) {
                 if (DeleteAttribute(ed.name)) {
                     UpdateAttribTable(comboBox1.Text);
-                    UpdateTable();
+                    UpdateEntityTable();
                     MessageBox.Show("Attribute deleted");
-                    WriteBinary();
+                    WriteBinary(fileName);
                 }
                 else {
                     MessageBox.Show("Attribute not found");
+                }
+            }
+        }
+
+        #endregion
+        #region Register
+
+        /* Crea un archivo de datos para la entidad seleccionada. Sólo se puede crear si no existe */
+        private void btnCreateRegisterFile(object sender, EventArgs e) {
+            try {
+                bw = new BinaryWriter(new FileStream(Application.StartupPath + "\\examples\\" + comboBox2.Text + ".dat", FileMode.Create));
+                bw.Close();
+                button9.Enabled = false;
+                button10.Enabled = true;
+                button7.Enabled = true;
+                button8.Enabled = true;
+                label5.Text = comboBox2.Text;
+                InitializeRegisterTable();
+               
+            }
+            catch (IOException ex) {
+                Console.WriteLine(ex.Message + "\n Cannot create file.");
+                return;
+            }
+            
+        }
+
+        /* Valida la entidad y si el archivo de datos está creado. Los botones se activan cuando ya está creado
+         * Si no está creado se desactivan los botones */
+        private void comboBox2_TextChanged(object sender, EventArgs e) {
+            if (comboBox2.Text != "") {
+                long eIndex = -1, eAnt = -1;
+                SearchEntity(comboBox2.Text, ref eIndex, ref eAnt);
+                selectedEntityAdrs = eIndex;
+                if (File.Exists(Application.StartupPath + "\\examples\\" + comboBox2.Text + ".dat")) {
+                    register = ReadRegisterBinary(comboBox2.Text);
+                    button9.Enabled = false;
+                    button10.Enabled = true;
+                    button7.Enabled = true;
+                    button8.Enabled = true;
+                    label5.Text = comboBox2.Text;
+                    InitializeRegisterTable();
+                    // Si la entidad no apunta a -1, entonces tiene elementos :v
+                    long aIndex = BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 38);
+                    if (BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 46) != -1) {
+                        List<char> types = new List<char>();
+                        List<int> sizes = new List<int>();
+                        while (aIndex != -1) {
+                            //inputs.Add(Encoding.UTF8.GetString(data.ToArray(), (int)aux, 30).Replace("~", ""));
+                            types.Add(BitConverter.ToChar(data.ToArray(), (int)aIndex + 38));
+                            sizes.Add(BitConverter.ToInt32(data.ToArray(), (int)aIndex + 40));
+                            aIndex = BitConverter.ToInt64(data.ToArray(), (int)aIndex + 56);
+                        }
+                        UpdateRegisterTable(types, sizes);
+                    }
+                }
+                else {
+                    dataGridView3.Columns.Clear();
+                    button9.Enabled = true;
+                    button10.Enabled = false;
+                    button7.Enabled = false;
+                    button8.Enabled = false;
+                    label5.Text = "Register";
+                }
+            }
+        }
+
+        /* Elimina un archivo de registro de la entidad seleccionada si es que éste existe. Se validan los botones */
+        private void BtnDeleteRegisterFile(object sender, EventArgs e) {
+            try {
+                File.Delete(Application.StartupPath + "\\examples\\" + comboBox2.Text + ".dat");
+                button9.Enabled = true;
+                button10.Enabled = false;
+                button7.Enabled = false;
+                button8.Enabled = false;
+                label5.Text = "Register";
+                register.Clear();
+                dataGridView3.Columns.Clear();
+                // Actualiza la cabecera de los registros de la entidad en -1
+                ReplaceBytes(data, selectedEntityAdrs + 46, -1);
+            }
+            catch (Exception ex) {
+                MessageBox.Show("Cannot delete file\n" + ex.ToString());
+                throw;
+            }
+        }
+
+        /* Esta función pone las cabeceras de la tabla de acuerdo al archivo de registros
+         de la entidad seleccionada */
+        private void InitializeRegisterTable() {
+            long aIndex;
+            // Obtiene la dirección de los registros de la entidad
+            textBox2.Text = BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 46).ToString();
+            dataGridView3.Columns.Clear();
+            // Recorre todos los atributos, y los agrega como columnas
+            aIndex = BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 38);
+            dataGridView3.Columns.Add("Registry address", "Registry address");
+            while (aIndex != -1) {
+                string name = Encoding.UTF8.GetString(data.ToArray(), (int)aIndex, 30).Replace("~", "");
+                aIndex = BitConverter.ToInt64(data.ToArray(), (int)aIndex + 56);
+                dataGridView3.Columns.Add(name, name);
+            }
+            dataGridView3.Columns.Add("Next registry address", "Next registry address");
+            
+        }
+        #endregion
+
+        /* El botón hace que se agrege un registro en la entidad seleccionada. Los registros
+         * son agregados secuencialmente */
+        private void BtnAddRegister(object sender, EventArgs e) {
+            List<string> inputs = new List<string>();
+            List<char> types = new List<char>();
+            List<int> sizes = new List<int>();
+            int size = 0;
+            // Obtiene todos los metadatos de los atributos para poder agregar registros
+            // Obtiene los nombres, los tipos y la longitud de los atributos
+            long aux = BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 38);
+            while (aux != -1) {
+                inputs.Add(Encoding.UTF8.GetString(data.ToArray(), (int)aux, 30).Replace("~", ""));
+                types.Add(BitConverter.ToChar(data.ToArray(), (int)aux + 38));
+                sizes.Add(BitConverter.ToInt32(data.ToArray(), (int)aux + 40));
+                size += sizes.Last();// BitConverter.ToInt32(data.ToArray(), (int)aux + 40);
+                aux = BitConverter.ToInt64(data.ToArray(), (int)aux + 56);
+            }
+            // Muestra el diálogo para pedir cada dato de la entidad
+            RegisterDialog rd = new RegisterDialog(inputs);
+            if (rd.ShowDialog() == DialogResult.OK) {
+                /* Guarda los resultados en una lista de string generica
+                 * Los resultados despues son convertidos a su tipo de dato especificado
+                 * por el tipo de dato en cada atributo */
+                List<string> forms = rd.output;
+                // Escribe la entrada en el archivo
+                AddEntry(forms, types, sizes, size);
+                // Actualiza la tabla de registros
+                UpdateRegisterTable(types, sizes);
+            }
+        }
+
+        private void UpdateRegisterTable(List<char> types, List<int> sizes) {
+            // Recorrer los registros desde el primero, ya sea que sea el primero o en el centro
+            long aux = BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 46);
+            
+            long integ = 0;
+            string name = "";
+            byte[] registerArr = register.ToArray();
+            List<string> row = new List<string>();
+            dataGridView3.Rows.Clear();
+            int rowCont = 0;
+            while (aux != -1) {
+                dataGridView3.Rows.Add();
+                long adrs = BitConverter.ToInt16(registerArr, (int)aux);
+                dataGridView3.Rows[rowCont].Cells[0].Value = adrs;
+                int fixSize = 8;
+                for (int i = 0; i < sizes.Count; i++) {
+                    if (types[i] == 'C') {
+                        name = Encoding.UTF8.GetString(registerArr, fixSize + (int)aux, sizes[i]).Replace("~", "");
+                        row.Add(name);
+                        dataGridView3.Rows[rowCont].Cells[i + 1].Value = name;
+                    }
+                    else {
+                        switch (sizes[i]) {
+                            case 2:
+                                integ = BitConverter.ToInt16(registerArr, fixSize + (int)aux);
+                                break;
+                            case 4:
+                                integ = BitConverter.ToInt32(registerArr, fixSize + (int)aux);
+                                break;
+                            case 8:
+                                integ = BitConverter.ToInt64(registerArr, fixSize + (int)aux);
+                                break;
+                            default:
+                                break;
+                        }
+                        dataGridView3.Rows[rowCont].Cells[i + 1].Value = integ;
+                    }
+                    fixSize += sizes[i];
+
+                }
+                if (aux != -1) {
+                    adrs = BitConverter.ToInt64(registerArr, fixSize + (int)aux);
+                    dataGridView3.Rows[rowCont].Cells[sizes.Count + 1].Value = adrs;
+                }
+                else {
+                    dataGridView3.Rows[rowCont].Cells[sizes.Count + 1].Value = (long)-1;
+                }
+                rowCont++;
+                aux = BitConverter.ToInt64(register.ToArray(), (int)aux + fixSize);
+            }
+        }
+
+        private void tabPage1_Click(object sender, EventArgs e) {
+
+        }
+
+        private void tabControl1_Selecting(object sender, TabControlCancelEventArgs e) {
+            if(tabControl1.TabPages[0].Text == e.TabPage.Text || tabControl1.TabPages[1].Text == e.TabPage.Text) {
+                if (comboBox1.Text != "" && BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 46) != -1) {
+                    button3.Enabled = false;
+                    button4.Enabled = false;
+                    button6.Enabled = false;
+                }
+                else {
+                    button3.Enabled = true;
+                    button4.Enabled = true;
+                    button6.Enabled = true;
+
+                }
+            }
+            else {
+                if (tabControl1.TabPages[0].Text == e.TabPage.Text) {
+
                 }
             }
         }

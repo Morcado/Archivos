@@ -48,23 +48,27 @@
             this.label4 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
-            this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
             this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.label7 = new System.Windows.Forms.Label();
+            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.button8 = new System.Windows.Forms.Button();
+            this.button7 = new System.Windows.Forms.Button();
+            this.button10 = new System.Windows.Forms.Button();
+            this.button9 = new System.Windows.Forms.Button();
             this.dataGridView3 = new System.Windows.Forms.DataGridView();
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.comboBox2 = new System.Windows.Forms.ComboBox();
-            this.button7 = new System.Windows.Forms.Button();
-            this.button9 = new System.Windows.Forms.Button();
+            this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
             this.menuStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             this.tabPage3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView3)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -112,6 +116,7 @@
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
             this.exitToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.exitToolStripMenuItem.Text = "Exit";
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
             // tabControl1
             // 
@@ -123,6 +128,7 @@
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(732, 411);
             this.tabControl1.TabIndex = 4;
+            this.tabControl1.Selecting += new System.Windows.Forms.TabControlCancelEventHandler(this.tabControl1_Selecting);
             // 
             // tabPage2
             // 
@@ -222,6 +228,7 @@
             this.tabPage1.TabIndex = 2;
             this.tabPage1.Text = "Attribute";
             this.tabPage1.UseVisualStyleBackColor = true;
+            this.tabPage1.Click += new System.EventHandler(this.tabPage1_Click);
             // 
             // dataGridView2
             // 
@@ -239,7 +246,7 @@
             this.button6.TabIndex = 3;
             this.button6.Text = "Modify attribute";
             this.button6.UseVisualStyleBackColor = true;
-            this.button6.Click += new System.EventHandler(this.btnModifyAttribute);
+            this.button6.Click += new System.EventHandler(this.BtnModifyAttribute);
             // 
             // button4
             // 
@@ -291,14 +298,13 @@
             this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             this.comboBox1.TextChanged += new System.EventHandler(this.comboBox1_TextChanged);
             // 
-            // errorProvider1
-            // 
-            this.errorProvider1.ContainerControl = this;
-            this.errorProvider1.Icon = ((System.Drawing.Icon)(resources.GetObject("errorProvider1.Icon")));
-            // 
             // tabPage3
             // 
+            this.tabPage3.Controls.Add(this.label7);
+            this.tabPage3.Controls.Add(this.textBox2);
+            this.tabPage3.Controls.Add(this.button8);
             this.tabPage3.Controls.Add(this.button7);
+            this.tabPage3.Controls.Add(this.button10);
             this.tabPage3.Controls.Add(this.button9);
             this.tabPage3.Controls.Add(this.dataGridView3);
             this.tabPage3.Controls.Add(this.label5);
@@ -309,8 +315,65 @@
             this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage3.Size = new System.Drawing.Size(724, 385);
             this.tabPage3.TabIndex = 3;
-            this.tabPage3.Text = "Registros";
+            this.tabPage3.Text = "Register";
             this.tabPage3.UseVisualStyleBackColor = true;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(21, 187);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(63, 13);
+            this.label7.TabIndex = 13;
+            this.label7.Text = "First register";
+            // 
+            // textBox2
+            // 
+            this.textBox2.Location = new System.Drawing.Point(100, 184);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.ReadOnly = true;
+            this.textBox2.Size = new System.Drawing.Size(51, 20);
+            this.textBox2.TabIndex = 12;
+            this.textBox2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // button8
+            // 
+            this.button8.Location = new System.Drawing.Point(21, 152);
+            this.button8.Name = "button8";
+            this.button8.Size = new System.Drawing.Size(130, 23);
+            this.button8.TabIndex = 11;
+            this.button8.Text = "Delete entry";
+            this.button8.UseVisualStyleBackColor = true;
+            // 
+            // button7
+            // 
+            this.button7.Location = new System.Drawing.Point(21, 123);
+            this.button7.Name = "button7";
+            this.button7.Size = new System.Drawing.Size(130, 23);
+            this.button7.TabIndex = 11;
+            this.button7.Text = "Insert entry";
+            this.button7.UseVisualStyleBackColor = true;
+            this.button7.Click += new System.EventHandler(this.BtnAddRegister);
+            // 
+            // button10
+            // 
+            this.button10.Location = new System.Drawing.Point(21, 94);
+            this.button10.Name = "button10";
+            this.button10.Size = new System.Drawing.Size(130, 23);
+            this.button10.TabIndex = 9;
+            this.button10.Text = "Delete Register";
+            this.button10.UseVisualStyleBackColor = true;
+            this.button10.Click += new System.EventHandler(this.BtnDeleteRegisterFile);
+            // 
+            // button9
+            // 
+            this.button9.Location = new System.Drawing.Point(21, 65);
+            this.button9.Name = "button9";
+            this.button9.Size = new System.Drawing.Size(130, 23);
+            this.button9.TabIndex = 9;
+            this.button9.Text = "Create Register";
+            this.button9.UseVisualStyleBackColor = true;
+            this.button9.Click += new System.EventHandler(this.btnCreateRegisterFile);
             // 
             // dataGridView3
             // 
@@ -325,9 +388,9 @@
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(173, 22);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(65, 13);
+            this.label5.Size = new System.Drawing.Size(46, 13);
             this.label5.TabIndex = 6;
-            this.label5.Text = "Select entity";
+            this.label5.Text = "Register";
             // 
             // label6
             // 
@@ -347,24 +410,12 @@
             this.comboBox2.Name = "comboBox2";
             this.comboBox2.Size = new System.Drawing.Size(130, 21);
             this.comboBox2.TabIndex = 5;
+            this.comboBox2.TextChanged += new System.EventHandler(this.comboBox2_TextChanged);
             // 
-            // button7
+            // errorProvider1
             // 
-            this.button7.Location = new System.Drawing.Point(21, 94);
-            this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(130, 23);
-            this.button7.TabIndex = 11;
-            this.button7.Text = "Delete entry";
-            this.button7.UseVisualStyleBackColor = true;
-            // 
-            // button9
-            // 
-            this.button9.Location = new System.Drawing.Point(21, 65);
-            this.button9.Name = "button9";
-            this.button9.Size = new System.Drawing.Size(130, 23);
-            this.button9.TabIndex = 9;
-            this.button9.Text = "Insert entry";
-            this.button9.UseVisualStyleBackColor = true;
+            this.errorProvider1.ContainerControl = this;
+            this.errorProvider1.Icon = ((System.Drawing.Icon)(resources.GetObject("errorProvider1.Icon")));
             // 
             // DataBase
             // 
@@ -385,10 +436,10 @@
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
             this.tabPage3.ResumeLayout(false);
             this.tabPage3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView3)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -427,6 +478,10 @@
         private System.Windows.Forms.ComboBox comboBox2;
         private System.Windows.Forms.Button button7;
         private System.Windows.Forms.Button button9;
+        private System.Windows.Forms.Button button8;
+        private System.Windows.Forms.Button button10;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.TextBox textBox2;
     }
 }
 
