@@ -44,17 +44,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AttributeDialog.cs">
+    <Compile Include="NewAttributeDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="AttributeDialog.Designer.cs">
-      <DependentUpon>AttributeDialog.cs</DependentUpon>
+    <Compile Include="NewAttributeDialog.Designer.cs">
+      <DependentUpon>NewAttributeDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="NameDialog.cs">
+    <Compile Include="NewEntityDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="NameDialog.Designer.cs">
-      <DependentUpon>NameDialog.cs</DependentUpon>
+    <Compile Include="NewEntityDialog.Designer.cs">
+      <DependentUpon>NewEntityDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="AttributeAlgorithms.cs">
       <SubType>Form</SubType>
@@ -79,14 +79,14 @@
     <Compile Include="RegisterDialog.Designer.cs">
       <DependentUpon>RegisterDialog.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="NameDialog.resx">
-      <DependentUpon>NameDialog.cs</DependentUpon>
+    <EmbeddedResource Include="NewEntityDialog.resx">
+      <DependentUpon>NewEntityDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="DataBase.resx">
       <DependentUpon>DataBase.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="AttributeDialog.resx">
-      <DependentUpon>AttributeDialog.cs</DependentUpon>
+    <EmbeddedResource Include="NewAttributeDialog.resx">
+      <DependentUpon>NewAttributeDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

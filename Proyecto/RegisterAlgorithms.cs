@@ -4,7 +4,78 @@ using System.Text;
 
 namespace Proyecto {
     public partial class DataBase {
-        private void AddEntry(List<string> output, List<char> types, List<int> sizes, int size) {
+
+        /* Esta funcion busca un registro, dado el nombre. Regresa la dirección del registro 
+         * si existe, y la dirección del anterior. Si el registro no existe, regresa -1. El
+         * registro se busca dada una clave de busqueda. Sin la clave no se puede buscar nada*/
+        private bool SearchRegistry(object name, ref long rIndex, ref long rAnt) {
+            rIndex = BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 46);
+            byte[] dataR = register.ToArray();
+            string keyName = "";
+            int keyNum = 0;
+            // Si el archivo no está vacío
+
+
+            /* Recorre todos los registros utilizando la clave de busqueda
+             * hasta que el siguiente indice es -1 */
+            while (rIndex != -1) {
+                rAnt = rIndex;
+
+                if (key.isChar) {
+                    keyName = Encoding.UTF8.GetString(dataR, (int)rIndex, key.size).Replace("~", "");
+                    if (keyName == (string)name) {
+                        break;
+                    }
+                }
+                else {
+                    keyNum = BitConverter.ToInt32(dataR, (int)rIndex);
+                    if (keyNum == (int)name) {
+                        break;
+                    }
+                }
+                rAnt = rIndex;
+                rIndex = BitConverter.ToInt64(dataR, (int)rIndex + key.size + 8);
+            }
+
+            if (key.isChar) {
+                if (keyName == (string)name) {
+                    return true;
+                }
+            }
+            else {
+                if (keyNum == (int)name) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /* Inserta un registro de forma ordenada en el archivo de registro de la entidad */
+        private bool AddOrderedEntry(List<string> output, List<char> types, List<int> sizes, int size) {
+            long rIndex = -1, rAnt = -1;
+            if (!SearchRegistry("", ref rIndex, ref rAnt) {
+                if (register.Count > 0) {
+                    // Buscar penultimo elemento y enlaza con el nuevo
+
+                    // Insertar al final o al centro. 
+                    ReplaceBytes(register, rIndex + size + 8, register.Count);
+
+                    
+                }
+                else {
+                    // Hace que el dato del indice de la entidad apunte al primero
+                    ReplaceBytes(data, selectedEntityAdrs + 46, register.Count);
+                    WriteBinary(dictionary);
+                    UpdateEntityTable();
+                }
+                register.AddRange(BitConverter.GetBytes((long)register.Count)); // Dirección N
+                return true;
+            }
+            return false;
+        }
+
+        /* Inserta un registro de forma secuencial en el archivo de registro de la entidad */
+        private void AddSecuentialEntry(List<string> output, List<char> types, List<int> sizes, int size) {
             string name = comboBox2.Text;
             // Si el registro ya tiene datos, inserta hasta el final
             if (register.Count > 0) {
@@ -15,15 +86,14 @@ namespace Proyecto {
                     aux = BitConverter.ToInt64(register.ToArray(), (int)aux + size + 8);                
                 }
                 ReplaceBytes(register, aux + size + 8, register.Count);
-                register.AddRange(BitConverter.GetBytes((long)register.Count)); // Dirección N
             }
             else {
                 // Hace que el dato del indice de la entidad apunte al primero
                 ReplaceBytes(data, selectedEntityAdrs + 46, register.Count);
-                WriteBinary(fileName);
+                WriteBinary(dictionary);
                 UpdateEntityTable();
-                register.AddRange(BitConverter.GetBytes((long)register.Count)); // Dirección N
             }
+            register.AddRange(BitConverter.GetBytes((long)register.Count)); // Dirección N
 
             // Agrega los nuevos datos al final del archivo
             for (int i = 0; i < output.Count; i++) {
@@ -37,20 +107,7 @@ namespace Proyecto {
 
                 }
                 else {
-                    switch (sizes[i]) {
-                        case 2:
-                            register.AddRange(BitConverter.GetBytes(Convert.ToInt16(output[i])));
-                            break;
-                        case 4:
-                            register.AddRange(BitConverter.GetBytes(Convert.ToInt32(output[i])));
-                            break;
-                        case 8:
-                            register.AddRange(BitConverter.GetBytes(Convert.ToInt64(output[i])));
-                            break;
-
-                        default:
-                            break;
-                    }
+                    register.AddRange(BitConverter.GetBytes(Convert.ToInt32(output[i])));
                 }
             }
 

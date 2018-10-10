@@ -5,32 +5,28 @@ using System.Text;
 
 namespace Proyecto {
     public partial class DataBase {
+
         /* Busca una entidad en data, si no la encuentra regresa falso
-           index tiene la direccion de la entidad, ant la direccion de la anterior
-           Si la lista esta vacia: return false, index = -1, ant = ,1
-           Si es el primer elemento: return true, index = head, ant = -1
-           Si va despues del primer elemento: return true, index = address */
+         * index tiene la direccion de la entidad, ant la direccion de la anterior
+         * Si la lista esta vacia: return false, index = -1, ant = ,1
+         * Si es el primer elemento: return true, index = head, ant = -1
+         * Si va despues del primer elemento: return true, index = address */
         private bool SearchEntity(string name, ref long index, ref long ant) {
             index = BitConverter.ToInt64(data.ToArray(), 0);
             string entityName = "";
             // Si no está vacía el archivo
-            if (head != -1) {
-                entityName = Encoding.UTF8.GetString(data.ToArray(), (int)index, 30).Replace("~", "");
-                // Recorre todas las entidades hasta que el siguiente indice es -1
-                while (String.Compare(name, entityName) == 1 && index != -1) {
-                    ant = index;
-                    index = BitConverter.ToInt64(data.ToArray(), (int)index + 54);
-                    if (index != -1) {
-                        entityName = Encoding.UTF8.GetString(data.ToArray(), (int)index, 30).Replace("~", "");
-                    }
-                }
 
-                if (name == entityName) {
-                    return true;
+            while (index != -1) {
+                entityName = Encoding.UTF8.GetString(data.ToArray(), (int)index, 30).Replace("~", "");
+                if (entityName == name) {
+                    break;
                 }
-                else {
-                    return false;
-                }
+                ant = index;
+                index = BitConverter.ToInt64(data.ToArray(), (int)index + 54);
+            }
+
+            if (index != -1) {
+                return true;
             }
             return false;
         }
@@ -43,6 +39,7 @@ namespace Proyecto {
             byte[] byteName = Encoding.UTF8.GetBytes(name);
             long currentAddress = data.Count;
 
+            // Si la entidad no se encuentra
             if (SearchEntity(name, ref index, ref ant) == false) {
                 // Agrega nombre
                 data.AddRange(byteName);
@@ -52,7 +49,7 @@ namespace Proyecto {
 
                 // Agrega la dirección de la entidad, la dirección de los atributos, la dirección de los registros
                 // y la dirección de la siguiente entidad, todos en -1
-                data.AddRange(BitConverter.GetBytes((long)currentAddress));
+                data.AddRange(BitConverter.GetBytes(currentAddress));
                 data.AddRange(BitConverter.GetBytes((long)-1));
                 data.AddRange(BitConverter.GetBytes((long)-1));
                 data.AddRange(BitConverter.GetBytes((long)-1));

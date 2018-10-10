@@ -60,6 +60,7 @@
             this.label6 = new System.Windows.Forms.Label();
             this.comboBox2 = new System.Windows.Forms.ComboBox();
             this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
+            this.tabPage4 = new System.Windows.Forms.TabPage();
             this.menuStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -123,6 +124,7 @@
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage3);
+            this.tabControl1.Controls.Add(this.tabPage4);
             this.tabControl1.Location = new System.Drawing.Point(0, 27);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
@@ -228,7 +230,6 @@
             this.tabPage1.TabIndex = 2;
             this.tabPage1.Text = "Attribute";
             this.tabPage1.UseVisualStyleBackColor = true;
-            this.tabPage1.Click += new System.EventHandler(this.tabPage1_Click);
             // 
             // dataGridView2
             // 
@@ -246,7 +247,7 @@
             this.button6.TabIndex = 3;
             this.button6.Text = "Modify attribute";
             this.button6.UseVisualStyleBackColor = true;
-            this.button6.Click += new System.EventHandler(this.BtnModifyAttribute);
+            this.button6.Click += new System.EventHandler(this.btnModifyAttribute);
             // 
             // button4
             // 
@@ -351,7 +352,7 @@
             this.button7.Name = "button7";
             this.button7.Size = new System.Drawing.Size(130, 23);
             this.button7.TabIndex = 11;
-            this.button7.Text = "Insert entry";
+            this.button7.Text = "Insert register";
             this.button7.UseVisualStyleBackColor = true;
             this.button7.Click += new System.EventHandler(this.BtnAddRegister);
             // 
@@ -361,7 +362,7 @@
             this.button10.Name = "button10";
             this.button10.Size = new System.Drawing.Size(130, 23);
             this.button10.TabIndex = 9;
-            this.button10.Text = "Delete Register";
+            this.button10.Text = "Delete Register File";
             this.button10.UseVisualStyleBackColor = true;
             this.button10.Click += new System.EventHandler(this.BtnDeleteRegisterFile);
             // 
@@ -371,7 +372,7 @@
             this.button9.Name = "button9";
             this.button9.Size = new System.Drawing.Size(130, 23);
             this.button9.TabIndex = 9;
-            this.button9.Text = "Create Register";
+            this.button9.Text = "Create Register File";
             this.button9.UseVisualStyleBackColor = true;
             this.button9.Click += new System.EventHandler(this.btnCreateRegisterFile);
             // 
@@ -416,6 +417,16 @@
             // 
             this.errorProvider1.ContainerControl = this;
             this.errorProvider1.Icon = ((System.Drawing.Icon)(resources.GetObject("errorProvider1.Icon")));
+            // 
+            // tabPage4
+            // 
+            this.tabPage4.Location = new System.Drawing.Point(4, 22);
+            this.tabPage4.Name = "tabPage4";
+            this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage4.Size = new System.Drawing.Size(724, 385);
+            this.tabPage4.TabIndex = 4;
+            this.tabPage4.Text = "Index";
+            this.tabPage4.UseVisualStyleBackColor = true;
             // 
             // DataBase
             // 
@@ -482,6 +493,7 @@
         private System.Windows.Forms.Button button10;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TabPage tabPage4;
     }
 }
 

@@ -25,8 +25,8 @@ C:\Users\Morcado\Desktop\Archivos\Proyecto\bin\Debug\Proyecto.pdb
 C:\Users\Morcado\Desktop\Archivos\Proyecto\obj\Debug\Proyecto.DataBase.resources
 C:\Users\Morcado\Desktop\Archivos\Proyecto\obj\Debug\Proyecto.Properties.Resources.resources
 C:\Users\Morcado\Desktop\Archivos\Proyecto\obj\Debug\Proyecto.csproj.GenerateResource.Cache
-C:\Users\Morcado\Desktop\Archivos\Proyecto\obj\Debug\Proyecto.AttributeDialog.resources
-C:\Users\Morcado\Desktop\Archivos\Proyecto\obj\Debug\Proyecto.NameDialog.resources
 C:\Users\Morcado\Desktop\Archivos\Proyecto\obj\Debug\Proyecto.RegisterDialog.resources
 C:\Users\Morcado\Desktop\Archivos\Proyecto\obj\Debug\Proyecto.csproj.CoreCompileInputs.cache
 C:\Users\Morcado\Desktop\Archivos\Proyecto\obj\Debug\Proyecto.csprojAssemblyReference.cache
+C:\Users\Morcado\Desktop\Archivos\Proyecto\obj\Debug\Proyecto.NewEntityDialog.resources
+C:\Users\Morcado\Desktop\Archivos\Proyecto\obj\Debug\Proyecto.NewAttributeDialog.resources

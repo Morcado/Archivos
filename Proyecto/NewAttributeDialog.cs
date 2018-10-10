@@ -8,26 +8,28 @@ using System.Text;
 using System.Windows.Forms;
 
 namespace Proyecto {
-    public partial class AttributeDialog : Form {
+    public partial class NewAttributeDialog : Form {
         public string name;
         public char type;
         public int length;
         public int indexType;
+        // Modificar para que solo pueda agregar un indice de 1
 
-        // Modify index type so you can only add 1 and only one search index
-
-        public AttributeDialog(int type) {
+        public NewAttributeDialog(int type) {
             InitializeComponent();
             textBox1.Select();
             button2.CausesValidation = false;
             switch (type) {
                 // New atribute
                 case 0:
-                    this.Text = "New attribute";
+                    Text = "New attribute";
                     break;
                 case 1:
-                    this.Text = "Modify attribute";
+                    Text = "Modify attribute";
                     break;
+            }
+            if (true) {
+
             }
         }
 
@@ -45,6 +47,17 @@ namespace Proyecto {
 
         private void button2_Click(object sender, EventArgs e) {
             Close();
+        }
+
+        private void comboBox2_SelectedIndexChanged(object sender, EventArgs e) {
+            // Si se elige que sea entero, se limita a solo el valor 4
+            if (comboBox2.SelectedIndex == 0) {
+                numericUpDown1.Value = 4;
+                numericUpDown1.Enabled = false;
+            }
+            else {
+                numericUpDown1.Enabled = true;
+            }
         }
     }
 }

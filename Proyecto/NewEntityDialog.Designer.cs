@@ -1,5 +1,5 @@
 ﻿namespace Proyecto {
-    partial class NameDialog {
+    partial class NewEntityDialog {
         /// <summary>
         /// Required designer variable.
         /// </summary>
@@ -66,7 +66,7 @@
             this.button2.Text = "Cancel";
             this.button2.UseVisualStyleBackColor = true;
             // 
-            // NameDialog
+            // NewEntityDialog
             // 
             this.AcceptButton = this.button1;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -79,8 +79,10 @@
             this.Controls.Add(this.label2);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
+            this.MaximumSize = new System.Drawing.Size(348, 127);
             this.MinimizeBox = false;
-            this.Name = "NameDialog";
+            this.MinimumSize = new System.Drawing.Size(348, 127);
+            this.Name = "NewEntityDialog";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Title";
             this.ResumeLayout(false);

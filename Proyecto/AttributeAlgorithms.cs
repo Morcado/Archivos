@@ -8,11 +8,11 @@ namespace Proyecto {
         /* Agrega un atributo al final del archivo y lo enlaza con el anterior. Se agrega el nombre del atributo,
          * el tipo, el tamaño del atributo y el tipo de índice, especificados por el usuario */
         private bool AddAttribute(string name, char type, int length, int indexType) {
-            long aIndex = BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 38);
-            long aAnt = -1;
-            long lastAttributeAddess = data.Count;
+            long aIndex = -1;
+            long lastAttributeAddress = data.Count;
+
             // Regresa el último atributo registrado de la entidad seleccionada
-            LastAttribute(ref aIndex, ref aAnt);
+            aIndex = LastAttribute();
 
             // Agrega el nombre del atributo (30 bytes)
             byte[] byteName = Encoding.UTF8.GetBytes(name);
@@ -23,7 +23,7 @@ namespace Proyecto {
 
             /* Direccion del atributo (8 bytes), tipo de dato (2 byte), longitud de dato (4 bytes)
             tipo de indice (4 bytes), direccion del indice (8 bytes) direccion del siguiente atributo (8 bytes) */
-            data.AddRange(BitConverter.GetBytes(lastAttributeAddess));
+            data.AddRange(BitConverter.GetBytes(lastAttributeAddress));
             data.AddRange(BitConverter.GetBytes(type));
             data.AddRange(BitConverter.GetBytes(length));
             data.AddRange(BitConverter.GetBytes(indexType));
@@ -31,11 +31,11 @@ namespace Proyecto {
             data.AddRange(BitConverter.GetBytes((long)-1));
 
             // Enlaza el ultimo atributo con el nuevo
-            if (aAnt != -1) {
-                ReplaceBytes(data, aAnt + 56, (long)lastAttributeAddess);
+            if (aIndex != -1) {
+                ReplaceBytes(data, aIndex + 56, lastAttributeAddress);
             }
             else {
-                ReplaceBytes(data, selectedEntityAdrs + 38, (long)lastAttributeAddess);
+                ReplaceBytes(data, selectedEntityAdrs + 38, lastAttributeAddress);
             }
             return true;
         }
@@ -61,33 +61,36 @@ namespace Proyecto {
          * Si la entidad se encuentra, regresa true y aIndex = direccion del atributo
            Si no se encuentra, regresa false y aIndex = -1 y aAnt = -1 */
         private bool SearchAttribute(string name, ref long aIndex, ref long aAnt) {
-            aIndex = BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 38);
+            byte[] dataP = data.ToArray();
+            aIndex = BitConverter.ToInt64(dataP, (int)selectedEntityAdrs + 38);
             string attributeName = ""; //Encoding.UTF8.GetString(data.ToArray(), (int)aAux, 30).Replace("~", ""); ;
 
             // Si no encuentra el atributo regresa -1
             while (aIndex != -1) {
-                attributeName = Encoding.UTF8.GetString(data.ToArray(), (int)aIndex, 30).Replace("~", "");
+                attributeName = Encoding.UTF8.GetString(dataP, (int)aIndex, 30).Replace("~", "");
                 if (attributeName == name) {
                     break;
                 }
                 aAnt = aIndex;
-                aIndex = BitConverter.ToInt64(data.ToArray(), (int)aIndex + 56);
+                aIndex = BitConverter.ToInt64(dataP, (int)aIndex + 56);
             }
             
             if (aIndex != -1) {
                 return true;
             }
-            else {
-                return false;
-            }
+            return false;
+            
         }
 
         // Regresa la direccion del ultimo atributo de la entidad seleccionada
-        private void LastAttribute(ref long aIndex, ref long aAnt) {
+        private long LastAttribute() {
+            byte[] dataP = data.ToArray();
+            long aIndex = BitConverter.ToInt64(dataP, (int)selectedEntityAdrs + 38), aAux = -1;
             while (aIndex != -1) {
-                aAnt = aIndex;
-                aIndex = BitConverter.ToInt64(data.ToArray(), (int)aIndex + 56);
+                aAux = aIndex;
+                aIndex = BitConverter.ToInt64(dataP, (int)aIndex + 56);
             }
+            return aAux;
         }
 
         /* Elimina un atributo y enlaza el anterior con el siguiente. Si es el primer atributo que fue agregado,

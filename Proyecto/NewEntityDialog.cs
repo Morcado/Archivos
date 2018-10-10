@@ -8,10 +8,10 @@ using System.Text;
 using System.Windows.Forms;
 
 namespace Proyecto {
-    public partial class NameDialog : Form {
+    public partial class NewEntityDialog : Form {
         public string name;
-        public NameDialog(int type) {
-            
+
+        public NewEntityDialog(int type) {
             InitializeComponent();
             switch (type) {
                 // New atribute
@@ -42,7 +42,5 @@ namespace Proyecto {
             name = textBox1.Text;
             Close();
         }
-
-
     }
 }

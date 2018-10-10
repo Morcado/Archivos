@@ -43,8 +43,6 @@ namespace Proyecto {
                 output.Add(((TextBox)Controls[i.ToString()]).Text);
             }
             Close();
-        }
-
-        
+        }   
     }
 }
