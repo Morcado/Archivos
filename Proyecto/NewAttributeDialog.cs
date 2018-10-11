@@ -28,9 +28,6 @@ namespace Proyecto {
                     Text = "Modify attribute";
                     break;
             }
-            if (true) {
-
-            }
         }
 
         private void button1_Click(object sender, EventArgs e) {
@@ -40,6 +37,7 @@ namespace Proyecto {
                 type = comboBox2.Text[0];
                 length = Convert.ToInt32(numericUpDown1.Value);
                 indexType = Convert.ToInt32(comboBox3.Text[0]) - 48;
+
                 DialogResult = DialogResult.OK;
                 Close();
             }

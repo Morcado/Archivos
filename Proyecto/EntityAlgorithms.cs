@@ -12,21 +12,20 @@ namespace Proyecto {
          * Si es el primer elemento: return true, index = head, ant = -1
          * Si va despues del primer elemento: return true, index = address */
         private bool SearchEntity(string name, ref long index, ref long ant) {
-            index = BitConverter.ToInt64(data.ToArray(), 0);
             string entityName = "";
-            // Si no está vacía el archivo
-
-            while (index != -1) {
+            // if its not empty
+            if (head != -1) {
+            index = BitConverter.ToInt64(data.ToArray(), 0);
                 entityName = Encoding.UTF8.GetString(data.ToArray(), (int)index, 30).Replace("~", "");
-                if (entityName == name) {
-                    break;
+                while (String.Compare(name, entityName) == 1 && index != -1) {
+                    ant = index;
+                    index = BitConverter.ToInt64(data.ToArray(), (int)index + 54);
+                    if (index != -1) {
+                        entityName = Encoding.UTF8.GetString(data.ToArray(), (int)index, 30).Replace("~", "");
+                    }
                 }
-                ant = index;
-                index = BitConverter.ToInt64(data.ToArray(), (int)index + 54);
-            }
 
-            if (index != -1) {
-                return true;
+                return name == entityName ? true : false;
             }
             return false;
         }

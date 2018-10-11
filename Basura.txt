@@ -1,0 +1,42 @@
+/* Actualiza la interfaz del usuario dependiendo de la pestaña que se eliga. Se hacen
+ * las validaciones correspondientes */
+private void tabControl1_Selecting(object sender, TabControlCancelEventArgs e) {
+   if (tabControl1.TabPages[0].Text == e.TabPage.Text || tabControl1.TabPages[1].Text == e.TabPage.Text || tabControl1.TabPages[2].Text == e.TabPage.Text) {
+        // Si esta vacio
+        if (head == -1) {
+            button3.Enabled = false;
+            button4.Enabled = false;
+            button6.Enabled = false;
+            button9.Enabled = false;
+            button10.Enabled = true;
+            button7.Enabled = true;
+            button8.Enabled = true;
+        }
+        else {
+            // Si hay cabeza y hay archivo
+            if (File.Exists(Application.StartupPath + "\\examples\\" + comboBox2.Text + ".dat")) {
+                button3.Enabled = true;
+                button4.Enabled = true;
+                button6.Enabled = true;
+                button9.Enabled = false;
+                button10.Enabled = true;
+                button7.Enabled = true;
+                button8.Enabled = true;
+            }
+        }
+    }
+}
+
+/* Se valida que se eliga una entidad del combo box para poder agregar, eliminar o modificar atributos */
+private void comboBox1_SelectedIndexChanged(object sender, EventArgs e) {
+    if (comboBox1.SelectedIndex == -1 || BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 46) != -1) {
+        button3.Enabled = false;
+        button4.Enabled = false;
+        button6.Enabled = false;
+    }
+    else {
+        button3.Enabled = true;
+        button4.Enabled = true;
+        button6.Enabled = true;
+    }
+}

@@ -11,6 +11,7 @@ namespace Proyecto {
     public partial class RegisterDialog : Form {
         private int cant;
         public List<string> output;
+        /* Ubica cada text box para pedir los datos de todos los atributos de la entidad*/
         public RegisterDialog(List<string> inputs) {
             InitializeComponent();
             cant = inputs.Count;
@@ -29,12 +30,10 @@ namespace Proyecto {
             }
             button1.Location = new Point(168, y);
             button2.Location = new Point(75, y);
-            this.Size = new Size(280, y + 26 + 20 + 33);
+            Size = new Size(280, y + 26 + 20 + 33);
         }
 
-        private void button2_Click(object sender, EventArgs e) {
-            Close();
-        }
+        private void button2_Click(object sender, EventArgs e) => Close();
 
         private void button1_Click(object sender, EventArgs e) {
             DialogResult = DialogResult.OK;
