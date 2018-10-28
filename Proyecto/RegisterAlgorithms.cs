@@ -16,16 +16,19 @@ namespace Proyecto {
             /* Recorre todos los registros utilizando la clave de busqueda
              * hasta que el siguiente indice es -1 */
             if (rIndex != -1) {
-                if (key.isChar) {
-                    keyName = Encoding.UTF8.GetString(dataR, (int)rIndex + 8 + key.pos, key.size).Replace("~", "");
+                if (key.searchKeyIsChar) {
+                    keyName = Encoding.UTF8.GetString(dataR, (int)rIndex + 8 + key.searchKeyPos, key.searchKeySize).Replace("~", "");
                     while (String.Compare(name, keyName) == 1 && rIndex != -1) {
                         rAnt = rIndex;
                         rIndex = BitConverter.ToInt64(dataR, (int)rIndex + 8 + registerSize);
-                        //keyName = Encoding.UTF8.GetString(dataR, (int)rIndex + 8 + key.pos, key.size).Replace("~", "");
                         if (rIndex != -1) {
-                            keyName = Encoding.UTF8.GetString(dataR, (int)rIndex + 8 + key.pos, key.size).Replace("~", "");
+                            keyName = Encoding.UTF8.GetString(dataR, (int)rIndex + 8 + key.searchKeyPos, key.searchKeySize).Replace("~", "");
                         }
                     }
+                    // Si tiene indice primario, entonces se regresa true, wip
+                    /*if (key.type == 2) {
+                        return true;
+                    }*/
                     return keyName == name ? true : false;
                 }
                 else {
@@ -33,11 +36,15 @@ namespace Proyecto {
                     keyNum = BitConverter.ToInt32(dataR, (int)rIndex);
                     while (keyNum < name2 && rIndex != -1) {
                         rAnt = rIndex;
-                        rIndex = BitConverter.ToInt64(dataR, (int)rIndex + key.size + 8);
+                        rIndex = BitConverter.ToInt64(dataR, (int)rIndex + key.searchKeySize + 8);
                         if (rIndex != -1) {
                             keyNum = BitConverter.ToInt32(dataR, (int)rIndex);
                         }
                     }
+                    // Si tiene indice primario, entonces se regresa true, wip
+                    /*if (key.type == 2) {
+                        return true;
+                    }*/
                     return keyNum == name2 ? true : false;
                 }
             }
@@ -45,12 +52,13 @@ namespace Proyecto {
             return false;
         }
 
-        /* Inserta un registro de forma ordenada en el archivo de registro de la entidad */
-        private bool AddOrderedEntry(List<string> output, List<char> types, List<int> sizes) {
+        /* Inserta un registro de forma ordenada en el archivo de registro de la entidad. Si el tipo de indice
+         * es primario o secundario, agrega el indice incluso si ya existe la clave de busqueda*/
+        private long AddOrderedEntry(List<string> output, List<char> types, List<int> sizes) {
             long rIndex = -1, rAnt = -1;
             long currentRegAdrs = register.Count;
-            if (!SearchRegistry(output[key.attribIndex], ref rIndex, ref rAnt)) {
-
+            if (!SearchRegistry(output[key.searchKeyAttribIndex], ref rIndex, ref rAnt)) {
+                
                 register.AddRange(BitConverter.GetBytes((long)register.Count)); // Dirección N
                                                                                 // Agrega los nuevos datos al final del archivo
                 for (int i = 0; i < output.Count; i++) {
@@ -71,41 +79,42 @@ namespace Proyecto {
 
                 // Enlaza si va igual que la cabeza, se actualiza la cabecera
                 if (rIndex == BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 46)) {
-                    ReplaceBytes(register, currentRegAdrs + 8 + registerSize, rIndex);
-                    ReplaceBytes(data, selectedEntityAdrs + 46, currentRegAdrs);
+                    ReplaceBytes(register, currentRegAdrs + 8 + registerSize, BitConverter.GetBytes(rIndex));
+                    ReplaceBytes(data, selectedEntityAdrs + 46, BitConverter.GetBytes(currentRegAdrs));
                 }
                 else {
                     // Si se inserta después de la cabecera, se inserta entre las entidades en las que va
-                    ReplaceBytes(register, rAnt + 8 + registerSize, currentRegAdrs);
+                    ReplaceBytes(register, rAnt + 8 + registerSize, BitConverter.GetBytes(currentRegAdrs));
                     if (rIndex != -1) {
-                        ReplaceBytes(register, currentRegAdrs + 8 + registerSize, BitConverter.ToInt64(data.ToArray(), startIndex: (int)rIndex));
+                        long aux = BitConverter.ToInt64(data.ToArray(), (int)rIndex);
+                        ReplaceBytes(register, currentRegAdrs + 8 + registerSize, BitConverter.GetBytes(aux));
                     }
                 }
-                return true;
+                return currentRegAdrs;
             }
-            return false;
+            return -1;
         }
 
         /* Inserta un registro de forma secuencial en el archivo de registro de la entidad */
-        private void AddSecuentialEntry(List<string> output, List<char> types, List<int> sizes) {
-            string name = comboBoxReg.Text;
+        private long AddSecuentialEntry(List<string> output, List<char> types, List<int> sizes) {
             // Si el registro ya tiene datos, inserta hasta el final
-            if (register.Count > 0) {
+            long regAdrs = register.Count;
+            if (regAdrs > 0) {
                 // Buscar penultimo elemento y enlaza con el nuevo
 
                 long aux = BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 46);
                 while (BitConverter.ToInt64(register.ToArray(), (int)aux + registerSize + 8) != -1) {
                     aux = BitConverter.ToInt64(register.ToArray(), (int)aux + registerSize + 8);                
                 }
-                ReplaceBytes(register, aux + registerSize + 8, register.Count);
+                ReplaceBytes(register, aux + registerSize + 8, BitConverter.GetBytes(regAdrs));
             }
             else {
                 // Hace que el dato del indice de la entidad apunte al primero
-                ReplaceBytes(data, selectedEntityAdrs + 46, register.Count);
-                WriteBinary(dictionary);
+                ReplaceBytes(data, selectedEntityAdrs + 46, BitConverter.GetBytes(regAdrs));
+                WriteDictionary();
                 UpdateEntityTable();
             }
-            register.AddRange(BitConverter.GetBytes((long)register.Count)); // Dirección N
+            register.AddRange(BitConverter.GetBytes(regAdrs)); // Dirección N
 
             // Agrega los nuevos datos al final del archivo
             for (int i = 0; i < output.Count; i++) {
@@ -125,7 +134,25 @@ namespace Proyecto {
 
             // Agrega la dirección de la siguiente entidad en -1
             register.AddRange(BitConverter.GetBytes((long)-1));
-            WriteRegBinary(name);
+            return regAdrs;
+        }
+
+        // Elimina un registro dada su clave de busqueda, utiliza la primera por defecto si no la tiene
+        private bool DeleteRegister(string output) {
+            long rIndex = -1, rAnt = -1;
+            long currentAdrs = register.Count;
+            if (SearchRegistry(output, ref rIndex, ref rAnt)) {
+                long next = BitConverter.ToInt64(register.ToArray(), (int)rIndex + registerSize + 8);
+                if (rIndex == BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 46)) {
+                    ReplaceBytes(data, selectedEntityAdrs + 46, BitConverter.GetBytes(next));
+                }
+                // ...en el centro o al final
+                else {
+                    ReplaceBytes(register, rAnt + registerSize + 8, BitConverter.GetBytes(next));
+                }
+                return true;
+            }
+            return false;
         }
     }
 }

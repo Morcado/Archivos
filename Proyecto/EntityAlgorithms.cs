@@ -55,15 +55,15 @@ namespace Proyecto {
                 
                 // Si se inserta al principio, se actualiza la cabecera
                 if (index == head) {
-                    ReplaceBytes(data, currentAddress + 54, index);
-                    ReplaceBytes(data, 0, currentAddress);
+                    ReplaceBytes(data, currentAddress + 54, BitConverter.GetBytes(index));
+                    ReplaceBytes(data, 0, BitConverter.GetBytes(currentAddress));
                     head = currentAddress;
                 }
                 else {
                     // Si se inserta después de la cabecera, se inserta entre las entidades en las que va
-                    ReplaceBytes(data, ant + 54, currentAddress);
+                    ReplaceBytes(data, ant + 54, BitConverter.GetBytes(currentAddress));
                     if (index != -1) {
-                        ReplaceBytes(data, currentAddress + 54, BitConverter.ToInt64(data.ToArray(), (int)index + 30));
+                        ReplaceBytes(data, currentAddress + 54, BitConverter.GetBytes(BitConverter.ToInt64(data.ToArray(), (int)index + 30)));
                     }
                 }
                 return true;
@@ -85,7 +85,7 @@ namespace Proyecto {
                 }
                 // ...en el centro o al final
                 else {
-                    ReplaceBytes(data, ant + 54, BitConverter.ToInt64(data.ToArray(), (int)index + 54));
+                    ReplaceBytes(data, ant + 54, BitConverter.GetBytes(BitConverter.ToInt64(data.ToArray(), (int)index + 54)));
                 }
                 return true;
             }
@@ -116,18 +116,18 @@ namespace Proyecto {
                 ReplaceBytes(data, index, nDName);
                 // Si se inserta en la cabecera
                 if (index2 == head) {
-                    ReplaceBytes(data, aux + 54, index2);
-                    ReplaceBytes(data, 0, aux);
+                    ReplaceBytes(data, aux + 54, BitConverter.GetBytes(index2));
+                    ReplaceBytes(data, 0, BitConverter.GetBytes(aux));
                     head = aux;
                 }
                 else {
                     // Si se inserta después de la cabecera
-                    ReplaceBytes(data, ant2 + 54, aux);
+                    ReplaceBytes(data, ant2 + 54,BitConverter.GetBytes(aux));
                     if (index2 != -1) {
-                        ReplaceBytes(data, aux + 54, BitConverter.ToInt64(data.ToArray(), (int)index2 + 30));
+                        ReplaceBytes(data, aux + 54, BitConverter.GetBytes(BitConverter.ToInt64(data.ToArray(), (int)index2 + 30)));
                     }
                     else {
-                        ReplaceBytes(data, aux + 54, -1);
+                        ReplaceBytes(data, aux + 54, BitConverter.GetBytes((long)-1));
                     }
                 }
             }

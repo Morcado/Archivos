@@ -1,49 +1,71 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
 namespace Proyecto {
-    public struct SearchKey {
-        public int size;
-        public int pos;
-        public int attribIndex;
-        public bool isChar;
+    public struct IndexFlag {
+        public int searchKeySize;
+        public int searchKeyPos;
+
+        public bool searchKey;
+        public int searchKeyAttribIndex;
+        public bool searchKeyIsChar;
+
+        public bool PK;
+        public int PKAtribListIndex;
+        public bool PKIsChar;
+        public int PKSize;
+        public long attribPKIndexAdrs;
+
+        public bool FK;
+        public int FKAtribListIndex;
+        public bool FKIsChar;
+        public int FKSize;
+        public long attribFKIndexAdrs;
     }
 
     public partial class DataBase : Form {
         private BinaryWriter bw;
         private BinaryReader br;
-        private string dictionary;
+        private string dictionaryName;
         private List<byte> data;
         private List<byte> register;
+        private List<byte> index;
         private long head;
         private long selectedEntityAdrs;
         private int registerSize;
-        private SearchKey key;
+        private IndexFlag key;
+        private int page = 1;
 
         public DataBase() {
             InitializeComponent();
             registerSize = 0;
-            key.pos = -1;
+
+            key.searchKeyPos = -1;
+            key.searchKey = false;
+            key.PK = false;
+            key.FK = false;
+            buttonPrevPage.Enabled = false;
+
             selectedEntityAdrs = -1;
             buttonEnt1.Enabled = false;
+            buttonEnt2.Enabled = false;
             buttonEnt3.Enabled = false;
             buttonAtt1.Enabled = false;
-            buttonAtt3.Enabled = false;
-            buttonEnt2.Enabled = false;
             buttonAtt2.Enabled = false;
-            buttonReg3.Enabled = false;
-            buttonReg4.Enabled = false;
+            buttonAtt3.Enabled = false;
             buttonReg1.Enabled = false;
             buttonReg2.Enabled = false;
+            buttonReg3.Enabled = false;
+            buttonReg4.Enabled = false;
+            buttonReg5.Enabled = false;
             data = new List<byte>();
             register = new List<byte>();
+            index = new List<byte>();
         }
 
         #region New, Open, Exit
@@ -51,15 +73,17 @@ namespace Proyecto {
         /* Crea un nuevo archivo binario y establece la cabecera en -1. El nombre del
          * archivo es elegido, y el diccionario de datos se guarda con este nombre */
         private void NewFile(object sender, EventArgs e) {
-            SaveFileDialog save = new SaveFileDialog();
-            save.Filter = "Binary file (*.bin)|*.bin|All files (*.*)|*.*";
-            save.InitialDirectory = Application.StartupPath + "\\examples";
+            SaveFileDialog save = new SaveFileDialog {
+                Filter = "Binary file (*.bin)|*.bin|All files (*.*)|*.*",
+                InitialDirectory = Application.StartupPath + "\\examples"
+            };
 
             if (save.ShowDialog() == DialogResult.OK) {
-                dictionary = save.FileName;
+                dictionaryName = save.FileName;
+
                 try {
                     // Crea el archivo del diccionario de datos
-                    bw = new BinaryWriter(new FileStream(dictionary, FileMode.Create));
+                    bw = new BinaryWriter(new FileStream(save.FileName, FileMode.Create));
                     bw.Close();
                 }
                 catch (IOException ex) {
@@ -82,22 +106,23 @@ namespace Proyecto {
                 // Añade la cabecera con el valor de -1 y la escribe en el archivo
                 data.AddRange(BitConverter.GetBytes((long)(-1)));
                 head = -1;
-                WriteBinary(dictionary);
+                WriteDictionary();
                 textBoxEnt.Text = head.ToString();
             }
         }
 
         // Abre un archivo binario y lo guarda en "data"
         private void OpenFile(object sender, EventArgs e) {
-            OpenFileDialog open = new OpenFileDialog();
-            open.InitialDirectory = Application.StartupPath + "\\examples";
-            open.Filter = "Binary file (*.bin)|*.bin|All files (*.*)|*.*";
-            open.DefaultExt = ".bin";
+            OpenFileDialog open = new OpenFileDialog {
+                InitialDirectory = Application.StartupPath + "\\examples",
+                Filter = "Binary file (*.bin)|*.bin|All files (*.*)|*.*",
+                DefaultExt = ".bin"
+            };
 
             if (open.ShowDialog() == DialogResult.OK) {
-                dictionary = open.FileName;
+                dictionaryName = open.FileName;
                 try {
-                    br = new BinaryReader(new FileStream(dictionary, FileMode.Open));
+                    br = new BinaryReader(new FileStream(open.FileName, FileMode.Open));
                 }
                 catch (IOException ex) {
                     Console.WriteLine(ex.Message + "\n Cannot open file.");
@@ -120,6 +145,19 @@ namespace Proyecto {
             }
         }
 
+        private void OpenCSV(object sender, EventArgs e) {
+            MessageBox.Show("In progress...");
+            OpenFileDialog open = new OpenFileDialog();
+            open.InitialDirectory = Application.StartupPath + "\\examples";
+            open.Filter = "CSV (*.csv)|*.csv|All files (*.*)|*.*";
+            open.DefaultExt = ".bin";
+
+            //if (open.ShowDialog() == DialogResult.OK) {
+            //   var Lines = File.ReadLines(open.FileName).Select(a => a.Split(';'));
+                //var CSV = from line in Lines select (line.Split(',')).ToArray();
+            //}
+        }
+
         // Cierra la aplicación
         private void exitToolStripMenuItem_Click(object sender, EventArgs e) {
             Application.Exit();
@@ -129,90 +167,95 @@ namespace Proyecto {
         #region Binary File Operations
         /* Inicializa la tabla de entidades y de atributos con sus columnas por defecto */
         private void InitializeTables() {
-            var col1 = new DataGridViewTextBoxColumn();
-            var col2 = new DataGridViewTextBoxColumn();
-            var col3 = new DataGridViewTextBoxColumn();
-            var col4 = new DataGridViewTextBoxColumn();
-            var col5 = new DataGridViewTextBoxColumn();
 
-            col1.HeaderText = "Entity name";
-            col1.Name = "Entity name";
-            col1.MinimumWidth = 150;
-            col1.Width = 150;
-            col2.HeaderText = "Entity address";
-            col2.Name = "Entity address";
-            col2.MinimumWidth = 80;
-            col2.Width = 80;
-            col2.Resizable = DataGridViewTriState.False;
-            col3.HeaderText = "Attribute address";
-            col3.Name = "Attribute address";
-            col3.MinimumWidth = 80;
-            col3.Width = 80;
-            col3.Resizable = DataGridViewTriState.False;
-            col4.HeaderText = "Data address";
-            col4.Name = "Data address";
-            col4.MinimumWidth = 80;
-            col4.Width = 80;
-            col4.Resizable = DataGridViewTriState.False;
-            col5.HeaderText = "Next entity address";
-            col5.Name = "Next entity address";
-            col5.MinimumWidth = 80;
-            col5.Width = 80;
-            col5.Resizable = DataGridViewTriState.False;
+            DataGridViewTextBoxColumn col1 = new DataGridViewTextBoxColumn {
+                HeaderText = "Entity name",
+                Name = "Entity name",
+                MinimumWidth = 150,
+                Width = 150,
+                Resizable = DataGridViewTriState.False
+            };
+            DataGridViewTextBoxColumn col2 = new DataGridViewTextBoxColumn {
+                HeaderText = "Entity address",
+                Name = "Entity address",
+                MinimumWidth = 80,
+                Width = 80,
+                Resizable = DataGridViewTriState.False
+            };
+            DataGridViewTextBoxColumn col3 = new DataGridViewTextBoxColumn {
+                HeaderText = "Attribute address",
+                Name = "Attribute address",
+                MinimumWidth = 80,
+                Width = 80,
+                Resizable = DataGridViewTriState.False
+            };
+            DataGridViewTextBoxColumn col4 = new DataGridViewTextBoxColumn {
+                HeaderText = "Data address",
+                Name = "Data address",
+                MinimumWidth = 80,
+                Width = 80,
+                Resizable = DataGridViewTriState.False
+            };
+            DataGridViewTextBoxColumn col5 = new DataGridViewTextBoxColumn {
+                HeaderText = "Next entity address",
+                Name = "Next entity address",
+                MinimumWidth = 80,
+                Width = 80,
+                Resizable = DataGridViewTriState.False
+            };
 
             entityTable.Columns.AddRange(new DataGridViewColumn[] { col1, col2, col3, col4, col5 });
-            var cl1 = new DataGridViewTextBoxColumn();
-            var cl2 = new DataGridViewTextBoxColumn();
-            var cl3 = new DataGridViewTextBoxColumn();
-            var cl4 = new DataGridViewTextBoxColumn();
-            var cl5 = new DataGridViewTextBoxColumn();
-            var cl6 = new DataGridViewTextBoxColumn();
-            var cl7 = new DataGridViewTextBoxColumn();
-            cl1.HeaderText = "Attribute name";
-            cl1.Name = "Attribute name";
-            cl1.MinimumWidth = 120;
-            cl1.Width = 120;
-            cl2.HeaderText = "Attribute address";
-            cl2.Name = "Attribute address";
-            cl2.MinimumWidth = 60;
-            cl2.Width = 60;
-            cl2.Resizable = DataGridViewTriState.False;
-            cl3.HeaderText = "Data type";
-            cl3.Name = "Data type";
-            cl3.MinimumWidth = 60;
-            cl3.Width = 60;
-            cl3.Resizable = DataGridViewTriState.False;
-            cl4.HeaderText = "Data length";
-            cl4.Name = "Data length";
-            cl4.MinimumWidth = 60;
-            cl4.Width = 60;
-            cl4.Resizable = DataGridViewTriState.False;
-            cl5.HeaderText = "Index type";
-            cl5.Name = "Index type";
-            cl5.MinimumWidth = 60;
-            cl5.Width = 60;
-            cl5.Resizable = DataGridViewTriState.False;
-            cl6.HeaderText = "Index address";
-            cl6.Name = "Index address";
-            cl6.MinimumWidth = 60;
-            cl6.Width = 60;
-            cl6.Resizable = DataGridViewTriState.False;
-            cl7.HeaderText = "Next attribute address";
-            cl7.Name = "Index type";
-            cl7.MinimumWidth = 60;
-            cl7.Width = 60;
-            cl7.Resizable = DataGridViewTriState.False;
+            DataGridViewTextBoxColumn cl1 = new DataGridViewTextBoxColumn {
+                HeaderText = "Attribute name",
+                Name = "Attribute name",
+                MinimumWidth = 120,
+                Width = 120,
+                Resizable = DataGridViewTriState.False
+            };
+            DataGridViewTextBoxColumn cl2 = new DataGridViewTextBoxColumn {
+                HeaderText = "Attribute address",
+                Name = "Attribute address",
+                MinimumWidth = 60,
+                Width = 60,
+                Resizable = DataGridViewTriState.False
+            };
+            DataGridViewTextBoxColumn cl3 = new DataGridViewTextBoxColumn {
+                HeaderText = "Data type",
+                Name = "Data type",
+                MinimumWidth = 60,
+                Width = 60,
+                Resizable = DataGridViewTriState.False
+            };
+            DataGridViewTextBoxColumn cl4 = new DataGridViewTextBoxColumn {
+                HeaderText = "Data length",
+                Name = "Data length",
+                MinimumWidth = 60,
+                Width = 60,
+                Resizable = DataGridViewTriState.False
+            };
+            DataGridViewTextBoxColumn cl5 = new DataGridViewTextBoxColumn {
+                HeaderText = "Index type",
+                Name = "Index type",
+                MinimumWidth = 60,
+                Width = 60,
+                Resizable = DataGridViewTriState.False
+            };
+            DataGridViewTextBoxColumn cl6 = new DataGridViewTextBoxColumn {
+                HeaderText = "Index address",
+                Name = "Index address",
+                MinimumWidth = 60,
+                Width = 60,
+                Resizable = DataGridViewTriState.False
+            };
+            DataGridViewTextBoxColumn cl7 = new DataGridViewTextBoxColumn {
+                HeaderText = "Next attribute address",
+                Name = "Index type",
+                MinimumWidth = 60,
+                Width = 60,
+                Resizable = DataGridViewTriState.False
+            };
 
             attributeTable.Columns.AddRange(new DataGridViewColumn[] { cl1, cl2, cl3, cl4, cl5, cl6, cl7 });
-        }
-
-        // Reemplaza n bytes especificados por el índice en el archivo, recibe un long
-        private void ReplaceBytes(List<byte> dat, long index, long newData) {
-            byte[] newBytes = BitConverter.GetBytes(newData);
-            // check
-            for (int i = (int)index; i < index + newBytes.Length; i++) {
-                dat[i] = newBytes[i - (int)index];
-            }
         }
 
         // Reemplaza n bytes especificados por el índice en el archivo, recibe un byte[]
@@ -225,9 +268,9 @@ namespace Proyecto {
 
         /* Guarda el archivo en binario cada vez que se agrega una entidad o atributo. 
          Este método guarda todo el arreglo de bytes en el archivo, sin hacer ninguna conversión */
-        private void WriteBinary(string name) {
+        private void WriteDictionary() {
             try {
-                bw = new BinaryWriter(new FileStream(name, FileMode.Create));
+                bw = new BinaryWriter(new FileStream(dictionaryName, FileMode.Create));
                 bw.Write(data.ToArray());
                 bw.Close();
             }
@@ -236,7 +279,7 @@ namespace Proyecto {
             }
         }
 
-        private void WriteRegBinary(string name) {
+        private void WriteRegisterFile(string name) {
             try {
                 bw = new BinaryWriter(new FileStream(Application.StartupPath + "\\examples\\" + name + ".dat", FileMode.Create));
                 bw.Write(register.ToArray());
@@ -247,7 +290,18 @@ namespace Proyecto {
             }
         }
 
-        private List<byte> ReadRegisterBinary(string name) {
+        private void WriteIndexFile(string name) {
+            try {
+                bw = new BinaryWriter(new FileStream(Application.StartupPath + "\\examples\\" + name + ".idx", FileMode.Create));
+                bw.Write(index.ToArray());
+                bw.Close();
+            }
+            catch (IOException ex) {
+                MessageBox.Show("Error al guardar: " + ex.ToString());
+            }
+        }
+
+        private void ReadRegisterFile(string name) {
             try {
                 br = new BinaryReader(new FileStream(Application.StartupPath + "\\examples\\" + name + ".dat", FileMode.Open));
                 register = br.ReadBytes((int)(new FileInfo(Application.StartupPath + "\\examples\\" + name + ".dat").Length)).ToList();
@@ -256,7 +310,17 @@ namespace Proyecto {
             catch (IOException ex) {
                 Console.WriteLine(ex.Message + "\n Cannot open file.");
             }
-            return register;
+        }
+
+        private void ReadIndexFile(string name) {
+            try {
+                br = new BinaryReader(new FileStream(Application.StartupPath + "\\examples\\" + name + ".idx", FileMode.Open));
+                index = br.ReadBytes((int)(new FileInfo(Application.StartupPath + "\\examples\\" + name + ".idx").Length)).ToList();
+                br.Close();
+            }
+            catch (IOException ex) {
+                Console.WriteLine(ex.Message + "\n Cannot open file.");
+            }
         }
 
         #endregion
@@ -289,44 +353,67 @@ namespace Proyecto {
             selectedEntityAdrs = eIndex;
 
             if (File.Exists(Application.StartupPath + "\\examples\\" + comboBoxReg.Text + ".dat")) {
-                register = ReadRegisterBinary(comboBoxReg.Text);
+                ReadRegisterFile(comboBoxReg.Text);
                 buttonReg1.Enabled = false;
                 buttonReg2.Enabled = true;
                 buttonReg3.Enabled = true;
                 buttonReg4.Enabled = true;
+                buttonReg5.Enabled = true;
                 label5.Text = comboBoxReg.Text;
                 InitializeRegisterTable();
                 // Si la entidad no apunta a -1, entonces tiene elementos :v
                 long aIndex = BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 38);
-                if (BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 46) != -1) {
-                    List<char> types = new List<char>();
-                    List<int> sizes = new List<int>();
-                    int i = 0, auxSearchKey = 0;
-                    registerSize = 0;
-                    while (aIndex != -1) {
-                        char aType = BitConverter.ToChar(data.ToArray(), (int)aIndex + 38);
-                        int aLength = BitConverter.ToInt32(data.ToArray(), (int)aIndex + 40);
-                        int iType = BitConverter.ToInt32(data.ToArray(), (int)aIndex + 44);
 
-                        types.Add(aType);
-                        sizes.Add(aLength);
+                List<char> types = new List<char>();
+                List<int> sizes = new List<int>();
+                int i = 0, auxSearchKey = 0;
+                registerSize = 0;
+                while (aIndex != -1) {
+                    char aType = BitConverter.ToChar(data.ToArray(), (int)aIndex + 38);
+                    int aLength = BitConverter.ToInt32(data.ToArray(), (int)aIndex + 40);
+                    int iType = BitConverter.ToInt32(data.ToArray(), (int)aIndex + 44);
 
-                        // Obtener la clave de busqueda si existe
-                        if (iType != 1) {
-                            auxSearchKey += aLength;
-                        }
-                        else { 
-                            key.pos = auxSearchKey;
-                            key.size = aLength;
-                            key.attribIndex = i;
-                            key.isChar = aType == 'C' ? true : false;
-                        }
+                    types.Add(aType);
+                    sizes.Add(aLength);
 
-                        registerSize += aLength;
-                        i++;
-                        aIndex = BitConverter.ToInt64(data.ToArray(), (int)aIndex + 56);
+                    // Obtener la clave de busqueda si existe
+
+                    if (iType != 1) {
+                        auxSearchKey += aLength;
                     }
-                    UpdateRegisterTable(types, sizes);
+
+                    switch (iType) {
+                        case 1:
+                            key.searchKey = true;
+                            key.searchKeyPos = auxSearchKey;
+                            key.searchKeySize = aLength;
+                            key.searchKeyAttribIndex = i;
+                            key.searchKeyIsChar = aType == 'C' ? true : false;
+                            break;
+                        case 2:
+                            key.PK = true;
+                            key.PKAtribListIndex = i;
+                            key.PKIsChar = aType == 'C' ? true : false;
+                            key.PKSize = aLength;
+                            key.attribPKIndexAdrs = aIndex;
+                            break;
+                        case 3:
+                            key.FK = true;
+                            key.FKAtribListIndex = i;
+                            key.FKIsChar = aType == 'C' ? true : false;
+                            key.FKSize = aLength;
+                            key.attribFKIndexAdrs = aIndex;
+                            break;
+                        default:
+                            break;
+                    }
+                    registerSize += aLength;
+                    i++;
+                    aIndex = BitConverter.ToInt64(data.ToArray(), (int)aIndex + 56);
+                }
+                UpdateRegisterTable(types, sizes);
+                if (File.Exists(Application.StartupPath + "\\examples\\" + comboBoxReg.Text + ".dat")) {
+                    ReadIndexFile(comboBoxReg.Text);
                 }
             }
             else {
@@ -335,7 +422,15 @@ namespace Proyecto {
                 buttonReg2.Enabled = false;
                 buttonReg3.Enabled = false;
                 buttonReg4.Enabled = false;
+                buttonReg5.Enabled = false;
                 label5.Text = "Register";
+            }
+
+            if (key.FK) {
+                InitializeFKIndexTable();
+            }
+            if (key.PK) {
+                InitializePKIndexTable();
             }
         }
 
@@ -357,6 +452,8 @@ namespace Proyecto {
                 string name = Encoding.UTF8.GetString(dataPrint, (int)aux, 30).Replace("~", "");
                 comboBoxAtt.Items.Add(name);
                 comboBoxReg.Items.Add(name);
+                comboBoxPK.Items.Add(name);
+                comboBoxFK.Items.Add(name);
                 long dirEntity = BitConverter.ToInt64(dataPrint, (int)aux + 30);
                 long dirAttrib = BitConverter.ToInt64(dataPrint, (int)aux + 38);
                 long dirData = BitConverter.ToInt64(dataPrint, (int)aux + 46);
@@ -378,7 +475,7 @@ namespace Proyecto {
                 if (AddEntity(dg.name)) {
                     UpdateEntityTable();
                     MessageBox.Show("Entity added", "Success");
-                    WriteBinary(dictionary);
+                    WriteDictionary();
                 }
                 else {
                     MessageBox.Show("Error: entity already in dictionary", "Error");
@@ -394,9 +491,11 @@ namespace Proyecto {
             if (et.DialogResult == DialogResult.OK) {
                 if (DeleteEntity(et.name)) {
                     UpdateEntityTable();
-                    WriteBinary(dictionary);
+                    WriteDictionary();
                     comboBoxAtt.Items.Remove(et.name);
                     comboBoxReg.Items.Remove(et.name);
+                    comboBoxPK.Items.Add(et.name);
+                    comboBoxFK.Items.Add(et.name);
                     MessageBox.Show("Entity deleted", "Success");
                 }
                 else {
@@ -421,7 +520,7 @@ namespace Proyecto {
                     if (etn.DialogResult == DialogResult.OK) {
                         if (ModifyEntity(etn.name, ref index)) {
                             MessageBox.Show("Entity modified successfully");
-                            WriteBinary(dictionary);
+                            WriteDictionary();
                             UpdateEntityTable();
                         }
                         else {
@@ -471,7 +570,7 @@ namespace Proyecto {
                 //AddAttribute(dg.attribute);
                 UpdateAttribTable(comboBoxAtt.Text);
                 MessageBox.Show("Attribute added successfully");
-                WriteBinary(dictionary);
+                WriteDictionary();
             }
         }
 
@@ -491,7 +590,7 @@ namespace Proyecto {
                     if (ad.DialogResult == DialogResult.OK) {
                         // Se modifica en el arreglo de binario
                         ModifyAttribute(aIndex, ad.name, ad.type, ad.length, ad.indexType);
-                        WriteBinary(dictionary);
+                        WriteDictionary();
                         UpdateAttribTable(comboBoxAtt.Text);
                         MessageBox.Show("Attribute modified successfully");
                     }
@@ -512,7 +611,7 @@ namespace Proyecto {
                     UpdateAttribTable(comboBoxAtt.Text);
                     UpdateEntityTable();
                     MessageBox.Show("Attribute deleted");
-                    WriteBinary(dictionary);
+                    WriteDictionary();
                 }
                 else {
                     MessageBox.Show("Attribute not found");
@@ -532,94 +631,25 @@ namespace Proyecto {
             registerTable.Columns.Clear();
             // Recorre todos los atributos, y los agrega como columnas
             aIndex = BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 38);
-            registerTable.Columns.Add("Registry address", "Registry address");
+            var cl1 = new DataGridViewTextBoxColumn {
+                HeaderText = "Register address",
+                Name = "Register address",
+                Width = 60,
+                Resizable = DataGridViewTriState.False
+            };
+            registerTable.Columns.Add(cl1);
             while (aIndex != -1) {
                 string name = Encoding.UTF8.GetString(data.ToArray(), (int)aIndex, 30).Replace("~", "");
                 aIndex = BitConverter.ToInt64(data.ToArray(), (int)aIndex + 56);
                 registerTable.Columns.Add(name, name);
             }
-            registerTable.Columns.Add("Next registry address", "Next registry address");
-
-        }
-
-        /* Crea un archivo de datos para la entidad seleccionada. Sólo se puede crear si no existe */
-        private void btnCreateRegisterFile(object sender, EventArgs e) {
-            try {
-                bw = new BinaryWriter(new FileStream(Application.StartupPath + "\\examples\\" + comboBoxReg.Text + ".dat", FileMode.Create));
-                bw.Close();
-                buttonReg1.Enabled = false;
-                buttonReg2.Enabled = true;
-                buttonReg3.Enabled = true;
-                buttonReg4.Enabled = true;
-                label5.Text = comboBoxReg.Text;
-                InitializeRegisterTable();
-               
-            }
-            catch (IOException ex) {
-                Console.WriteLine(ex.Message + "\n Cannot create file.");
-                return;
-            }
-        }
-        
-        /* Elimina un archivo de registro de la entidad seleccionada si es que éste existe. Se validan los botones */
-        private void BtnDeleteRegisterFile(object sender, EventArgs e) {
-            try {
-                File.Delete(Application.StartupPath + "\\examples\\" + comboBoxReg.Text + ".dat");
-                buttonReg1.Enabled = true;
-                buttonReg2.Enabled = false;
-                buttonReg3.Enabled = false;
-                buttonReg4.Enabled = false;
-                label5.Text = "Register";
-                register.Clear();
-                registerTable.Columns.Clear();
-                // Actualiza la cabecera de los registros de la entidad en -1
-                ReplaceBytes(data, selectedEntityAdrs + 46, -1);
-                WriteBinary(dictionary);
-                UpdateEntityTable();
-            }
-            catch (Exception ex) {
-                MessageBox.Show("Cannot delete file\n" + ex.ToString());
-                throw;
-            }
-        }
-
-        /* El botón hace que se agrege un registro en la entidad seleccionada. Los registros
-         * son agregados secuencialmente */
-        private void BtnAddRegister(object sender, EventArgs e) {
-            List<string> inputs = new List<string>();
-            List<char> types = new List<char>();
-            List<int> sizes = new List<int>();
-            byte[] dataP = data.ToArray();
-            // Obtiene todos los metadatos de los atributos para poder agregar registros
-            // Obtiene los nombres, los tipos y la longitud de los atributos
-            long aux = BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 38);
-            while (aux != -1) {
-                inputs.Add(Encoding.UTF8.GetString(dataP, (int)aux, 30).Replace("~", ""));
-                types.Add(BitConverter.ToChar(dataP, (int)aux + 38));
-                sizes.Add(BitConverter.ToInt32(dataP, (int)aux + 40));
-                aux = BitConverter.ToInt64(dataP, (int)aux + 56);
-            }
-            /* Muestra el diálogo para pedir cada dato de la entidad
-             * El dialogo obtiene el nombre de la clave de busqueda de algun registro si esta existe */
-            RegisterDialog rd = new RegisterDialog(inputs);
-            if (rd.ShowDialog() == DialogResult.OK) {
-                /* Guarda los resultados en una lista de string generica
-                 * Los resultados despues son convertidos a su tipo de dato especificado
-                 * por el tipo de dato en cada atributo */
-                List<string> forms = rd.output;
-                // Escribe la entrada en el archivo
-                if (key.attribIndex != -1) {
-                    AddOrderedEntry(forms, types, sizes);
-                    WriteBinary(dictionary);
-                    UpdateEntityTable();
-                }
-                else {
-                    AddSecuentialEntry(forms, types, sizes);
-                }
-                // Actualiza la tabla de registros
-                UpdateRegisterTable(types, sizes);
-                WriteRegBinary(comboBoxReg.Text);
-            }
+            var cl2 = new DataGridViewTextBoxColumn {
+                Resizable = DataGridViewTriState.False,
+                HeaderText = "Next register address",
+                Name = "Next register address",
+                Width = 60
+            };
+            registerTable.Columns.Add(cl2);
         }
 
         private void UpdateRegisterTable(List<char> types, List<int> sizes) {
@@ -659,8 +689,418 @@ namespace Proyecto {
                 }
                 rowCont++;
                 aux = BitConverter.ToInt64(register.ToArray(), (int)aux + fixSize);
-            }            
+            }
         }
+
+        /* Crea un archivo de datos para la entidad seleccionada. Sólo se puede crear si no existe */
+        private void btnCreateRegisterFile(object sender, EventArgs e) {
+            try {
+                bw = new BinaryWriter(new FileStream(Application.StartupPath + "\\examples\\" + comboBoxReg.Text + ".dat", FileMode.Create));
+                bw.Close();
+                buttonReg1.Enabled = false;
+                buttonReg2.Enabled = true;
+                buttonReg3.Enabled = true;
+                buttonReg5.Enabled = true;
+                label5.Text = comboBoxReg.Text;
+                InitializeRegisterTable();
+               
+            }
+            catch (IOException ex) {
+                Console.WriteLine(ex.Message + "\n Cannot create file.");
+                return;
+            }
+        }
+        
+        /* Elimina un archivo de registro de la entidad seleccionada si es que éste existe. Se validan los botones */
+        private void BtnDeleteRegisterFile(object sender, EventArgs e) {
+            try {
+                File.Delete(Application.StartupPath + "\\examples\\" + comboBoxReg.Text + ".dat");
+                File.Delete(Application.StartupPath + "\\examples\\" + comboBoxReg.Text + ".idx");
+                buttonReg1.Enabled = true;
+                buttonReg2.Enabled = false;
+                buttonReg3.Enabled = false;
+                buttonReg5.Enabled = false;
+                label5.Text = "Register";
+                register.Clear();
+                index.Clear();
+                registerTable.Columns.Clear();
+                // Actualiza la cabecera de los registros de la entidad en -1
+                ReplaceBytes(data, selectedEntityAdrs + 46, BitConverter.GetBytes((long)-1));
+                WriteDictionary();
+                UpdateEntityTable();
+            }
+            catch (Exception ex) {
+                MessageBox.Show("Cannot delete file\n" + ex.ToString());
+                throw;
+            }
+        }
+
+        /* El botón hace que se agrege un registro en la entidad seleccionada. Los registros
+         * son agregados secuencialmente */
+        private void BtnAddRegister(object sender, EventArgs e) {
+            List<string> inputs = new List<string>();
+            List<char> types = new List<char>();
+            List<int> sizes = new List<int>();
+            byte[] dataP = data.ToArray();
+            /* Obtiene todos los metadatos de los atributos para poder agregar registros
+             * Obtiene los nombres, los tipos y la longitud de los atributos */
+            
+            long aux = BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 38);
+            while (aux != -1) {
+                inputs.Add(Encoding.UTF8.GetString(dataP, (int)aux, 30).Replace("~", ""));
+                types.Add(BitConverter.ToChar(dataP, (int)aux + 38));
+                sizes.Add(BitConverter.ToInt32(dataP, (int)aux + 40));
+                aux = BitConverter.ToInt64(dataP, (int)aux + 56);
+            }
+            /* Muestra el diálogo para pedir cada dato de la entidad
+             * El dialogo obtiene el nombre de la clave de busqueda de algun registro si esta existe */
+            RegisterDialog rd = new RegisterDialog(inputs, -1, 0);
+            if (rd.ShowDialog() == DialogResult.OK) {
+                /* Guarda los resultados en una lista de string generica
+                 * Los resultados despues son convertidos a su tipo de dato especificado
+                 * por el tipo de dato en cada atributo */
+
+                List<string> forms = rd.output;
+                /* Escribe la entrada en el archivo, agrega los registros de forma secuencial
+                 * solo si tiene el tipo de indice 0, en los demás los agrega ordenados */
+
+                /* Si el registro a insertar contiene indice primario o secundario o ambos
+                 * entonces tiene que crear el archivo de índices, y sólo lo crea una vez. */
+                long idxAdrs = index.Count;
+                if ((key.PK || key.FK) && !File.Exists(Application.StartupPath + "\\examples\\" + comboBoxReg.Text + ".idx")) {
+                    CreateIndexFile();
+                    if (key.PK) {
+                        CreatePKStructure();
+                        ReplaceBytes(data, key.attribPKIndexAdrs + 48, BitConverter.GetBytes(idxAdrs));
+                    }
+                    idxAdrs = index.Count;
+                    if (key.FK) {
+                        CreateFKStructure();
+                        ReplaceBytes(data, key.attribFKIndexAdrs + 48, BitConverter.GetBytes(idxAdrs));
+                        // Si el proyecto lo requiere, implementar un ciclo en donde se vayan agregando todos
+                        // los índices secundarios en el archivo de indices
+                    }
+                }
+
+                if (key.PK) {
+                    bool resp = InsertPrimaryKey(rd.output[key.PKAtribListIndex], forms, types, sizes);
+                    if (resp) {
+                        UpdateMainPKTable();
+                        WriteIndexFile(comboBoxReg.Text);
+                    }
+                }
+                if (key.FK) {
+                    bool resp = InsertForeignKey(rd.output[key.FKAtribListIndex], forms, types, sizes);
+                    if (resp) {
+                        UpdateMainFKTable();
+                        WriteIndexFile(comboBoxReg.Text);
+                    }
+                }
+                /* Actualizar la tabla de registros */
+                UpdateEntityTable();
+                UpdateRegisterTable(types, sizes);
+                WriteRegisterFile(comboBoxReg.Text);
+            }
+        }
+
+
+
+
         #endregion
+        // Delete register file
+        private void BtnDeleteRegister(object sender, EventArgs e) {
+            byte[] dataP = data.ToArray();
+            List<string> inputs = new List<string>();
+            List<char> types = new List<char>();
+            List<int> sizes = new List<int>();
+            // Obtiene todos los metadatos de los atributos para poder agregar registros
+            // Obtiene los nombres, los tipos y la longitud de los atributos
+            long aux = BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 38);
+            while (aux != -1) {
+                inputs.Add(Encoding.UTF8.GetString(dataP, (int)aux, 30).Replace("~", ""));
+                types.Add(BitConverter.ToChar(dataP, (int)aux + 38));
+                sizes.Add(BitConverter.ToInt32(dataP, (int)aux + 40));
+                aux = BitConverter.ToInt64(dataP, (int)aux + 56);
+            }
+
+            RegisterDialog rd = new RegisterDialog(inputs, key.searchKeyAttribIndex, 2);
+            if (rd.ShowDialog() == DialogResult.OK) {
+                List<string> change = rd.output;
+                if (DeleteRegister(rd.output[0])) {
+                    UpdateRegisterTable(types, sizes);
+                    MessageBox.Show("Register deleted sucessfully", "Success");
+                }
+                else {
+                    MessageBox.Show("Register not found", "Error");
+                }
+            }
+        }
+
+        private void BtnModifyRegister(object sender, EventArgs e) {
+
+        }
+
+        private void DataBase_Resize(object sender, EventArgs e) {
+            tabControl1.Height = ClientSize.Height - 28;
+            tabControl1.Width = ClientSize.Width;
+            entityTable.Height = ClientSize.Height - 116;
+            entityTable.Width = ClientSize.Width - 210;
+            attributeTable.Height = ClientSize.Height - 116;
+            attributeTable.Width = ClientSize.Width - 210;
+            registerTable.Height = ClientSize.Height - 116;
+            registerTable.Width = ClientSize.Width - 210;
+        }
+
+        private void comboBoxPK_TextChanged(object sender, EventArgs e) {
+            long eIndex = -1, eAnt = -1;
+            SearchEntity(comboBoxReg.Text, ref eIndex, ref eAnt);
+            selectedEntityAdrs = eIndex;
+
+            if (File.Exists(Application.StartupPath + "\\examples\\" + comboBoxReg.Text + ".idx")) {
+                long aIndex = BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 38);
+
+                List<char> types = new List<char>();
+                List<int> sizes = new List<int>();
+                int i = 0, auxSearchKey = 0;
+                registerSize = 0;
+                while (aIndex != -1) {
+                    char aType = BitConverter.ToChar(data.ToArray(), (int)aIndex + 38);
+                    int aLength = BitConverter.ToInt32(data.ToArray(), (int)aIndex + 40);
+                    int iType = BitConverter.ToInt32(data.ToArray(), (int)aIndex + 44);
+
+                    types.Add(aType);
+                    sizes.Add(aLength);
+
+                    // Obtener la clave de busqueda si existe
+
+                    if (iType != 1) {
+                        auxSearchKey += aLength;
+                    }
+
+                    switch (iType) {
+                        case 1:
+                            key.searchKey = true;
+                            key.searchKeyPos = auxSearchKey;
+                            key.searchKeySize = aLength;
+                            key.searchKeyAttribIndex = i;
+                            key.searchKeyIsChar = aType == 'C' ? true : false;
+                            break;
+                        case 2:
+                            key.PK = true;
+                            key.PKAtribListIndex = i;
+                            key.PKIsChar = aType == 'C' ? true : false;
+                            key.PKSize = aLength;
+                            key.attribPKIndexAdrs = aIndex;
+                            break;
+                        case 3:
+                            key.FK = true;
+                            key.FKAtribListIndex = i;
+                            key.FKIsChar = aType == 'C' ? true : false;
+                            key.PKSize = aLength;
+                            key.attribFKIndexAdrs = aIndex;
+                            break;
+                        default:
+                            break;
+                    }
+                    registerSize += aLength;
+                    i++;
+                    aIndex = BitConverter.ToInt64(data.ToArray(), (int)aIndex + 56);
+                }
+
+            }
+        }
+
+        private void InitializeFKIndexTable() {
+            mainFKTable.Columns.Clear();
+            secondFKTable.Columns.Clear();
+
+            var cl1 = new DataGridViewTextBoxColumn {
+                Width = 60,
+                Resizable = DataGridViewTriState.False
+            };
+            cl1.HeaderText = key.PKIsChar ? "Character" : "Number";
+            cl1.Name = key.PKIsChar ? "Character" : "Number";
+
+            mainFKTable.Columns.Add(cl1);
+
+            var cl2 = new DataGridViewTextBoxColumn {
+                Resizable = DataGridViewTriState.False,
+                HeaderText = "Sublist address",
+                Name = "Sublist address",
+                Width = 60
+            };
+            mainFKTable.Columns.Add(cl2);
+            for (int i = 0; i < 50; i++) {
+                mainFKTable.Rows.Add(-1, -1);
+            }
+        }
+
+        private void CreateIndexFile() {
+            try {
+                bw = new BinaryWriter(new FileStream(Application.StartupPath + "\\examples\\" + comboBoxReg.Text + ".idx", FileMode.Create));
+                bw.Close();
+            }
+            catch (IOException ex) {
+                Console.WriteLine(ex.Message + "\n Cannot create file.");
+            }
+        }
+
+        private void UpdatePKTable() {
+            mainPKTable.Rows.Clear();
+            for (int i = 0; i < 9; i++) {
+                long adrs = BitConverter.ToInt64(index.ToArray(), i * (key.PKSize + 8) + key.PKSize);
+                mainPKTable.Rows.Add(i + 1, adrs);
+            }
+        }
+
+        private void InitializePKIndexTable() {
+            // Obtiene la dirección de los registros de la entidad
+            mainPKTable.Columns.Clear();
+            secondPKTable.Columns.Clear();
+            // Recorre todos los atributos, y los agrega como columnas
+            var cl1 = new DataGridViewTextBoxColumn {
+                Width = 60,
+                Resizable = DataGridViewTriState.False
+            };
+            cl1.HeaderText = key.PKIsChar ? "Character" : "Number";
+            cl1.Name = key.PKIsChar ? "Character" : "Number";
+            
+            mainPKTable.Columns.Add(cl1);
+            
+            var cl2 = new DataGridViewTextBoxColumn {
+                Resizable = DataGridViewTriState.False,
+                HeaderText = "Sublist address",
+                Name = "Sublist address",
+                Width = 60
+            };
+            mainPKTable.Columns.Add(cl2);
+
+            if (!key.PKIsChar) { 
+                for (int i = 0; i < 9; i++) {
+                    mainPKTable.Rows.Add(i + 1, -1);
+                }
+            }
+            else {
+                char name = 'A';
+                for (int i = 0; i < 26; i++) {
+                    mainPKTable.Rows.Add(name++, -1);
+                }
+            }
+
+            var cl3 = new DataGridViewTextBoxColumn {
+                Width = 120,
+                HeaderText = "Search Key",
+                Name = "Search Key",
+                Resizable = DataGridViewTriState.False
+            };
+
+            secondPKTable.Columns.Add(cl3);
+
+            var cl4 = new DataGridViewTextBoxColumn {
+                Resizable = DataGridViewTriState.False,
+                HeaderText = "Address",
+                Name = "Address",
+                Width = 60
+            };
+            secondPKTable.Columns.Add(cl4);
+        }
+
+        private void nextPKPage(object sender, EventArgs e) {
+            int cant = !key.PKIsChar ? 9 : 26;
+            if (page < cant) {
+                buttonPrevPage.Enabled = true;
+                page++;
+                pageNumber.Text = !key.PKIsChar ? page.ToString() : Convert.ToChar(page + 64).ToString();
+
+            }
+            if (page == cant) {
+                buttonNextPage.Enabled = false;
+            }
+            UpdateSecondPKTable();
+        }
+
+        private void prevPKPage(object sender, EventArgs e) {
+            int cant = !key.PKIsChar ? 9 : 26;
+            if (page > 1) {
+                buttonNextPage.Enabled = true;
+                page--;
+                pageNumber.Text = !key.PKIsChar ? page.ToString() : Convert.ToChar(page + 64).ToString();
+
+            }
+            if (page == 1) {
+                buttonPrevPage.Enabled = false;
+                
+            }
+            UpdateSecondPKTable();
+        }
+
+        private void UpdateSecondPKTable() {
+            if (index.Count > 0) {
+                secondPKTable.Rows.Clear();
+                long adrs = -1;
+                if (!key.PKIsChar) {
+                    adrs = BitConverter.ToInt64(index.ToArray(), (page - 1) * 12 + 4); 
+                }
+                else {
+                    adrs = BitConverter.ToInt64(index.ToArray(), (page - 1) * 10 + 2);
+                }
+                if (adrs != -1) {
+                    int code = -1;
+                    string scode = "";
+                    long regAdrs = BitConverter.ToInt64(index.ToArray(), (int)adrs + key.PKSize);
+                    do {
+
+                        if (!key.PKIsChar) {
+                            code = BitConverter.ToInt32(index.ToArray(), (int)adrs);
+                            secondPKTable.Rows.Add(code, regAdrs);
+                        }
+                        else {
+                            scode = Encoding.UTF8.GetString(index.ToArray(), (int)adrs, key.PKSize).Replace("~", "");
+                            secondPKTable.Rows.Add(scode, regAdrs);
+                        }
+                        adrs += key.PKSize + 8;
+                        regAdrs = BitConverter.ToInt64(index.ToArray(), (int)adrs + key.PKSize);
+                    } while (regAdrs != -1);
+                }
+            }
+        }
+
+        /* Actualiza las tablas de indice primario, la tabla de los numeros del 1 al 9 o de letras
+         * de la a - z*/
+        private void UpdateMainPKTable() {
+            secondPKTable.Rows.Clear();
+            long adrs = -1;
+            int aum = !key.PKIsChar ? 9 : 26;
+            for (int i = 0, inc = 0, inc2 = 0; i < aum; i++, inc += key.PKSize, inc2 += key.PKSize) {
+                adrs = !key.PKIsChar 
+                    ? BitConverter.ToInt64(index.ToArray(), i * 12 + 4) 
+                    : BitConverter.ToInt64(index.ToArray(), i * 10 + 2);
+                mainPKTable.Rows[i].Cells[1].Value = adrs;
+            }
+            adrs = !key.PKIsChar
+                ? BitConverter.ToInt64(index.ToArray(), (page - 1) * 12 + 4)
+                : BitConverter.ToInt64(index.ToArray(), (page - 1) * 10 + 2);
+            if (adrs != -1) {
+                int code = -1;
+                string scode = "";
+                long regAdrs = BitConverter.ToInt64(index.ToArray(), (int)adrs + key.PKSize);
+                do {
+                    if (!key.PKIsChar) {
+                        code = BitConverter.ToInt32(index.ToArray(), (int)adrs);
+                        secondPKTable.Rows.Add(code, regAdrs);
+                    }
+                    else {
+                        scode = Encoding.UTF8.GetString(index.ToArray(), (int)adrs, key.PKSize).Replace("~", "");
+                        secondPKTable.Rows.Add(scode, regAdrs);
+                    }
+                    adrs += key.PKSize + 8;
+                    regAdrs = BitConverter.ToInt64(index.ToArray(), (int)adrs + key.PKSize);
+                } while (regAdrs != -1);
+            }
+        }
+
+        private void UpdateMainFKTable() {
+            throw new NotImplementedException();
+        }
     }
 }

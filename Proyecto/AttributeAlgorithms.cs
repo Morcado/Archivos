@@ -32,10 +32,10 @@ namespace Proyecto {
 
             // Enlaza el ultimo atributo con el nuevo
             if (aIndex != -1) {
-                ReplaceBytes(data, aIndex + 56, lastAttributeAddress);
+                ReplaceBytes(data, aIndex + 56, BitConverter.GetBytes(lastAttributeAddress));
             }
             else {
-                ReplaceBytes(data, selectedEntityAdrs + 38, lastAttributeAddress);
+                ReplaceBytes(data, selectedEntityAdrs + 38, BitConverter.GetBytes(lastAttributeAddress));
             }
             return true;
         }
@@ -101,12 +101,13 @@ namespace Proyecto {
 
             if (SearchAttribute(name, ref aIndex, ref aAnt)) {
                 // Si es el primer elemento, cambia la direccion del primer atributo de la entidad
+                long aux = BitConverter.ToInt64(data.ToArray(), (int)aIndex + 56);
                 if (aAnt == -1) {
-                    ReplaceBytes(data, selectedEntityAdrs + 38, BitConverter.ToInt64(data.ToArray(), (int)aIndex + 56));
+                    ReplaceBytes(data, selectedEntityAdrs + 38, BitConverter.GetBytes(aux));
                 }
                 // Si es en medio o al final
                 else {
-                    ReplaceBytes(data, aAnt + 56, BitConverter.ToInt64(data.ToArray(), (int)aIndex + 56));
+                    ReplaceBytes(data, aAnt + 56, BitConverter.GetBytes(aux));
                 }
                 return true;
             }

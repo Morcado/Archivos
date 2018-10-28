@@ -43,8 +43,8 @@
             this.comboBox3.Items.AddRange(new object[] {
             "0 - No index",
             "1 - Search key",
-            "2 - Primary index",
-            "3 - Secondary index"});
+            "2 - Primary key",
+            "3 - Foreign key"});
             this.comboBox3.Location = new System.Drawing.Point(147, 99);
             this.comboBox3.Name = "comboBox3";
             this.comboBox3.Size = new System.Drawing.Size(196, 21);
