@@ -34,21 +34,25 @@
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
             this.tabPage5 = new System.Windows.Forms.TabPage();
+            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
+            this.button1 = new System.Windows.Forms.Button();
+            this.pageFKNumber = new System.Windows.Forms.Label();
+            this.label14 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
-            this.label13 = new System.Windows.Forms.Label();
-            this.comboBoxFK = new System.Windows.Forms.ComboBox();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
+            this.buttonNextFKPage = new System.Windows.Forms.Button();
+            this.buttonPrevFKPage = new System.Windows.Forms.Button();
             this.secondFKTable = new System.Windows.Forms.DataGridView();
             this.mainFKTable = new System.Windows.Forms.DataGridView();
-            this.label14 = new System.Windows.Forms.Label();
+            this.label17 = new System.Windows.Forms.Label();
             this.label15 = new System.Windows.Forms.Label();
             this.tabPage4 = new System.Windows.Forms.TabPage();
-            this.label11 = new System.Windows.Forms.Label();
+            this.button2 = new System.Windows.Forms.Button();
+            this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
             this.label10 = new System.Windows.Forms.Label();
-            this.comboBoxPK = new System.Windows.Forms.ComboBox();
-            this.buttonNextPage = new System.Windows.Forms.Button();
-            this.buttonPrevPage = new System.Windows.Forms.Button();
+            this.pagePKNumber = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
+            this.buttonNextPKPage = new System.Windows.Forms.Button();
+            this.buttonPrevPKPage = new System.Windows.Forms.Button();
             this.secondPKTable = new System.Windows.Forms.DataGridView();
             this.mainPKTable = new System.Windows.Forms.DataGridView();
             this.label9 = new System.Windows.Forms.Label();
@@ -82,13 +86,14 @@
             this.buttonEnt1 = new System.Windows.Forms.Button();
             this.entityTable = new System.Windows.Forms.DataGridView();
             this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.pageNumber = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             this.tabPage5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.secondFKTable)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.mainFKTable)).BeginInit();
             this.tabPage4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.secondPKTable)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.mainPKTable)).BeginInit();
             this.tabPage3.SuspendLayout();
@@ -125,33 +130,33 @@
             // newToolStripMenuItem
             // 
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(127, 22);
             this.newToolStripMenuItem.Text = "New";
             this.newToolStripMenuItem.Click += new System.EventHandler(this.NewFile);
             // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(127, 22);
             this.openToolStripMenuItem.Text = "Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.OpenFile);
             // 
             // openCSVToolStripMenuItem
             // 
             this.openCSVToolStripMenuItem.Name = "openCSVToolStripMenuItem";
-            this.openCSVToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openCSVToolStripMenuItem.Size = new System.Drawing.Size(127, 22);
             this.openCSVToolStripMenuItem.Text = "Open CSV";
             this.openCSVToolStripMenuItem.Click += new System.EventHandler(this.OpenCSV);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(124, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(127, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -162,14 +167,16 @@
             // 
             // tabPage5
             // 
+            this.tabPage5.Controls.Add(this.numericUpDown1);
+            this.tabPage5.Controls.Add(this.button1);
+            this.tabPage5.Controls.Add(this.pageFKNumber);
+            this.tabPage5.Controls.Add(this.label14);
             this.tabPage5.Controls.Add(this.label12);
-            this.tabPage5.Controls.Add(this.label13);
-            this.tabPage5.Controls.Add(this.comboBoxFK);
-            this.tabPage5.Controls.Add(this.button3);
-            this.tabPage5.Controls.Add(this.button4);
+            this.tabPage5.Controls.Add(this.buttonNextFKPage);
+            this.tabPage5.Controls.Add(this.buttonPrevFKPage);
             this.tabPage5.Controls.Add(this.secondFKTable);
             this.tabPage5.Controls.Add(this.mainFKTable);
-            this.tabPage5.Controls.Add(this.label14);
+            this.tabPage5.Controls.Add(this.label17);
             this.tabPage5.Controls.Add(this.label15);
             this.tabPage5.Location = new System.Drawing.Point(4, 22);
             this.tabPage5.Name = "tabPage5";
@@ -179,55 +186,89 @@
             this.tabPage5.Text = "Foreign Key";
             this.tabPage5.UseVisualStyleBackColor = true;
             // 
+            // numericUpDown1
+            // 
+            this.numericUpDown1.Location = new System.Drawing.Point(18, 82);
+            this.numericUpDown1.Maximum = new decimal(new int[] {
+            50,
+            0,
+            0,
+            0});
+            this.numericUpDown1.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericUpDown1.Name = "numericUpDown1";
+            this.numericUpDown1.Size = new System.Drawing.Size(68, 20);
+            this.numericUpDown1.TabIndex = 26;
+            this.numericUpDown1.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(92, 80);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(56, 23);
+            this.button1.TabIndex = 25;
+            this.button1.Text = "Go";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // pageFKNumber
+            // 
+            this.pageFKNumber.AutoSize = true;
+            this.pageFKNumber.Location = new System.Drawing.Point(413, 22);
+            this.pageFKNumber.Name = "pageFKNumber";
+            this.pageFKNumber.Size = new System.Drawing.Size(19, 13);
+            this.pageFKNumber.TabIndex = 23;
+            this.pageFKNumber.Text = "1  ";
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(15, 66);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(60, 13);
+            this.label14.TabIndex = 21;
+            this.label14.Text = "Go to page";
+            // 
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(18, 77);
+            this.label12.Location = new System.Drawing.Point(15, 22);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(71, 13);
             this.label12.TabIndex = 21;
             this.label12.Text = "Change page";
             // 
-            // label13
+            // buttonNextFKPage
             // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(18, 22);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(65, 13);
-            this.label13.TabIndex = 22;
-            this.label13.Text = "Select entity";
+            this.buttonNextFKPage.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Bold);
+            this.buttonNextFKPage.Location = new System.Drawing.Point(89, 38);
+            this.buttonNextFKPage.Margin = new System.Windows.Forms.Padding(0);
+            this.buttonNextFKPage.Name = "buttonNextFKPage";
+            this.buttonNextFKPage.Size = new System.Drawing.Size(59, 21);
+            this.buttonNextFKPage.TabIndex = 18;
+            this.buttonNextFKPage.Text = "→";
+            this.buttonNextFKPage.UseVisualStyleBackColor = true;
+            this.buttonNextFKPage.Click += new System.EventHandler(this.nextFKPage);
             // 
-            // comboBoxFK
+            // buttonPrevFKPage
             // 
-            this.comboBoxFK.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBoxFK.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.comboBoxFK.FormattingEnabled = true;
-            this.comboBoxFK.Location = new System.Drawing.Point(21, 38);
-            this.comboBoxFK.Name = "comboBoxFK";
-            this.comboBoxFK.Size = new System.Drawing.Size(130, 21);
-            this.comboBoxFK.TabIndex = 20;
-            // 
-            // button3
-            // 
-            this.button3.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Bold);
-            this.button3.Location = new System.Drawing.Point(92, 93);
-            this.button3.Margin = new System.Windows.Forms.Padding(0);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(59, 21);
-            this.button3.TabIndex = 18;
-            this.button3.Text = "→";
-            this.button3.UseVisualStyleBackColor = true;
-            // 
-            // button4
-            // 
-            this.button4.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Bold);
-            this.button4.Location = new System.Drawing.Point(21, 93);
-            this.button4.Margin = new System.Windows.Forms.Padding(0);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(59, 21);
-            this.button4.TabIndex = 19;
-            this.button4.Text = "←";
-            this.button4.UseVisualStyleBackColor = true;
+            this.buttonPrevFKPage.Enabled = false;
+            this.buttonPrevFKPage.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Bold);
+            this.buttonPrevFKPage.Location = new System.Drawing.Point(18, 38);
+            this.buttonPrevFKPage.Margin = new System.Windows.Forms.Padding(0);
+            this.buttonPrevFKPage.Name = "buttonPrevFKPage";
+            this.buttonPrevFKPage.Size = new System.Drawing.Size(59, 21);
+            this.buttonPrevFKPage.TabIndex = 19;
+            this.buttonPrevFKPage.Text = "←";
+            this.buttonPrevFKPage.UseVisualStyleBackColor = true;
+            this.buttonPrevFKPage.Click += new System.EventHandler(this.prevFKPage);
             // 
             // secondFKTable
             // 
@@ -245,14 +286,14 @@
             this.mainFKTable.Size = new System.Drawing.Size(185, 325);
             this.mainFKTable.TabIndex = 17;
             // 
-            // label14
+            // label17
             // 
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(385, 22);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(32, 13);
-            this.label14.TabIndex = 14;
-            this.label14.Text = "Page";
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(385, 22);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(32, 13);
+            this.label17.TabIndex = 14;
+            this.label17.Text = "Page";
             // 
             // label15
             // 
@@ -265,12 +306,13 @@
             // 
             // tabPage4
             // 
-            this.tabPage4.Controls.Add(this.pageNumber);
-            this.tabPage4.Controls.Add(this.label11);
+            this.tabPage4.Controls.Add(this.button2);
+            this.tabPage4.Controls.Add(this.numericUpDown2);
             this.tabPage4.Controls.Add(this.label10);
-            this.tabPage4.Controls.Add(this.comboBoxPK);
-            this.tabPage4.Controls.Add(this.buttonNextPage);
-            this.tabPage4.Controls.Add(this.buttonPrevPage);
+            this.tabPage4.Controls.Add(this.pagePKNumber);
+            this.tabPage4.Controls.Add(this.label11);
+            this.tabPage4.Controls.Add(this.buttonNextPKPage);
+            this.tabPage4.Controls.Add(this.buttonPrevPKPage);
             this.tabPage4.Controls.Add(this.secondPKTable);
             this.tabPage4.Controls.Add(this.mainPKTable);
             this.tabPage4.Controls.Add(this.label9);
@@ -283,58 +325,89 @@
             this.tabPage4.Text = "Primary Key";
             this.tabPage4.UseVisualStyleBackColor = true;
             // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(95, 79);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(56, 23);
+            this.button2.TabIndex = 17;
+            this.button2.Text = "Go";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // numericUpDown2
+            // 
+            this.numericUpDown2.Location = new System.Drawing.Point(24, 81);
+            this.numericUpDown2.Maximum = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            this.numericUpDown2.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericUpDown2.Name = "numericUpDown2";
+            this.numericUpDown2.Size = new System.Drawing.Size(65, 20);
+            this.numericUpDown2.TabIndex = 16;
+            this.numericUpDown2.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(21, 64);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(60, 13);
+            this.label10.TabIndex = 15;
+            this.label10.Text = "Go to page";
+            // 
+            // pagePKNumber
+            // 
+            this.pagePKNumber.AutoSize = true;
+            this.pagePKNumber.Location = new System.Drawing.Point(414, 22);
+            this.pagePKNumber.Name = "pagePKNumber";
+            this.pagePKNumber.Size = new System.Drawing.Size(13, 13);
+            this.pagePKNumber.TabIndex = 14;
+            this.pagePKNumber.Text = "1";
+            // 
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(18, 77);
+            this.label11.Location = new System.Drawing.Point(18, 23);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(71, 13);
             this.label11.TabIndex = 13;
             this.label11.Text = "Change page";
             // 
-            // label10
+            // buttonNextPKPage
             // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(18, 22);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(65, 13);
-            this.label10.TabIndex = 13;
-            this.label10.Text = "Select entity";
+            this.buttonNextPKPage.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Bold);
+            this.buttonNextPKPage.Location = new System.Drawing.Point(92, 39);
+            this.buttonNextPKPage.Margin = new System.Windows.Forms.Padding(0);
+            this.buttonNextPKPage.Name = "buttonNextPKPage";
+            this.buttonNextPKPage.Size = new System.Drawing.Size(59, 21);
+            this.buttonNextPKPage.TabIndex = 11;
+            this.buttonNextPKPage.Text = "→";
+            this.buttonNextPKPage.UseVisualStyleBackColor = true;
+            this.buttonNextPKPage.Click += new System.EventHandler(this.nextPKPage);
             // 
-            // comboBoxPK
+            // buttonPrevPKPage
             // 
-            this.comboBoxPK.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBoxPK.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.comboBoxPK.FormattingEnabled = true;
-            this.comboBoxPK.Location = new System.Drawing.Point(21, 38);
-            this.comboBoxPK.Name = "comboBoxPK";
-            this.comboBoxPK.Size = new System.Drawing.Size(130, 21);
-            this.comboBoxPK.TabIndex = 12;
-            this.comboBoxPK.TextChanged += new System.EventHandler(this.comboBoxPK_TextChanged);
-            // 
-            // buttonNextPage
-            // 
-            this.buttonNextPage.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Bold);
-            this.buttonNextPage.Location = new System.Drawing.Point(92, 93);
-            this.buttonNextPage.Margin = new System.Windows.Forms.Padding(0);
-            this.buttonNextPage.Name = "buttonNextPage";
-            this.buttonNextPage.Size = new System.Drawing.Size(59, 21);
-            this.buttonNextPage.TabIndex = 11;
-            this.buttonNextPage.Text = "→";
-            this.buttonNextPage.UseVisualStyleBackColor = true;
-            this.buttonNextPage.Click += new System.EventHandler(this.nextPKPage);
-            // 
-            // buttonPrevPage
-            // 
-            this.buttonPrevPage.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Bold);
-            this.buttonPrevPage.Location = new System.Drawing.Point(21, 93);
-            this.buttonPrevPage.Margin = new System.Windows.Forms.Padding(0);
-            this.buttonPrevPage.Name = "buttonPrevPage";
-            this.buttonPrevPage.Size = new System.Drawing.Size(59, 21);
-            this.buttonPrevPage.TabIndex = 11;
-            this.buttonPrevPage.Text = "←";
-            this.buttonPrevPage.UseVisualStyleBackColor = true;
-            this.buttonPrevPage.Click += new System.EventHandler(this.prevPKPage);
+            this.buttonPrevPKPage.Enabled = false;
+            this.buttonPrevPKPage.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Bold);
+            this.buttonPrevPKPage.Location = new System.Drawing.Point(21, 39);
+            this.buttonPrevPKPage.Margin = new System.Windows.Forms.Padding(0);
+            this.buttonPrevPKPage.Name = "buttonPrevPKPage";
+            this.buttonPrevPKPage.Size = new System.Drawing.Size(59, 21);
+            this.buttonPrevPKPage.TabIndex = 11;
+            this.buttonPrevPKPage.Text = "←";
+            this.buttonPrevPKPage.UseVisualStyleBackColor = true;
+            this.buttonPrevPKPage.Click += new System.EventHandler(this.prevPKPage);
             // 
             // secondPKTable
             // 
@@ -393,6 +466,7 @@
             // 
             // buttonReg4
             // 
+            this.buttonReg4.Enabled = false;
             this.buttonReg4.Location = new System.Drawing.Point(21, 178);
             this.buttonReg4.Name = "buttonReg4";
             this.buttonReg4.Size = new System.Drawing.Size(130, 23);
@@ -421,6 +495,7 @@
             // 
             // buttonReg5
             // 
+            this.buttonReg5.Enabled = false;
             this.buttonReg5.Location = new System.Drawing.Point(21, 207);
             this.buttonReg5.Name = "buttonReg5";
             this.buttonReg5.Size = new System.Drawing.Size(130, 23);
@@ -431,6 +506,7 @@
             // 
             // buttonReg3
             // 
+            this.buttonReg3.Enabled = false;
             this.buttonReg3.Location = new System.Drawing.Point(21, 149);
             this.buttonReg3.Name = "buttonReg3";
             this.buttonReg3.Size = new System.Drawing.Size(130, 23);
@@ -441,6 +517,7 @@
             // 
             // buttonReg2
             // 
+            this.buttonReg2.Enabled = false;
             this.buttonReg2.Location = new System.Drawing.Point(21, 94);
             this.buttonReg2.Name = "buttonReg2";
             this.buttonReg2.Size = new System.Drawing.Size(130, 23);
@@ -451,6 +528,7 @@
             // 
             // buttonReg1
             // 
+            this.buttonReg1.Enabled = false;
             this.buttonReg1.Location = new System.Drawing.Point(21, 65);
             this.buttonReg1.Name = "buttonReg1";
             this.buttonReg1.Size = new System.Drawing.Size(130, 23);
@@ -523,6 +601,7 @@
             // 
             // buttonAtt2
             // 
+            this.buttonAtt2.Enabled = false;
             this.buttonAtt2.Location = new System.Drawing.Point(21, 94);
             this.buttonAtt2.Name = "buttonAtt2";
             this.buttonAtt2.Size = new System.Drawing.Size(130, 23);
@@ -533,6 +612,7 @@
             // 
             // buttonAtt3
             // 
+            this.buttonAtt3.Enabled = false;
             this.buttonAtt3.Location = new System.Drawing.Point(21, 123);
             this.buttonAtt3.Name = "buttonAtt3";
             this.buttonAtt3.Size = new System.Drawing.Size(130, 23);
@@ -543,6 +623,7 @@
             // 
             // buttonAtt1
             // 
+            this.buttonAtt1.Enabled = false;
             this.buttonAtt1.Location = new System.Drawing.Point(21, 65);
             this.buttonAtt1.Name = "buttonAtt1";
             this.buttonAtt1.Size = new System.Drawing.Size(130, 23);
@@ -626,6 +707,7 @@
             // 
             // buttonEnt2
             // 
+            this.buttonEnt2.Enabled = false;
             this.buttonEnt2.Location = new System.Drawing.Point(22, 67);
             this.buttonEnt2.Name = "buttonEnt2";
             this.buttonEnt2.Size = new System.Drawing.Size(130, 23);
@@ -636,6 +718,7 @@
             // 
             // buttonEnt3
             // 
+            this.buttonEnt3.Enabled = false;
             this.buttonEnt3.Location = new System.Drawing.Point(22, 96);
             this.buttonEnt3.Name = "buttonEnt3";
             this.buttonEnt3.Size = new System.Drawing.Size(130, 23);
@@ -646,6 +729,7 @@
             // 
             // buttonEnt1
             // 
+            this.buttonEnt1.Enabled = false;
             this.buttonEnt1.Location = new System.Drawing.Point(22, 38);
             this.buttonEnt1.Name = "buttonEnt1";
             this.buttonEnt1.Size = new System.Drawing.Size(130, 23);
@@ -675,15 +759,6 @@
             this.tabControl1.Size = new System.Drawing.Size(800, 411);
             this.tabControl1.TabIndex = 4;
             // 
-            // pageNumber
-            // 
-            this.pageNumber.AutoSize = true;
-            this.pageNumber.Location = new System.Drawing.Point(414, 22);
-            this.pageNumber.Name = "pageNumber";
-            this.pageNumber.Size = new System.Drawing.Size(13, 13);
-            this.pageNumber.TabIndex = 14;
-            this.pageNumber.Text = "1";
-            // 
             // DataBase
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -700,10 +775,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
             this.tabPage5.ResumeLayout(false);
             this.tabPage5.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.secondFKTable)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.mainFKTable)).EndInit();
             this.tabPage4.ResumeLayout(false);
             this.tabPage4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.secondPKTable)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.mainPKTable)).EndInit();
             this.tabPage3.ResumeLayout(false);
@@ -762,25 +839,28 @@
         private System.Windows.Forms.ComboBox comboBoxReg;
         private System.Windows.Forms.TabPage tabPage4;
         private System.Windows.Forms.Label label11;
-        private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.ComboBox comboBoxPK;
-        private System.Windows.Forms.Button buttonNextPage;
-        private System.Windows.Forms.Button buttonPrevPage;
+        private System.Windows.Forms.Button buttonNextPKPage;
+        private System.Windows.Forms.Button buttonPrevPKPage;
         private System.Windows.Forms.DataGridView secondPKTable;
         private System.Windows.Forms.DataGridView mainPKTable;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.TabPage tabPage5;
         private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.Label label13;
-        private System.Windows.Forms.ComboBox comboBoxFK;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.Button buttonNextFKPage;
+        private System.Windows.Forms.Button buttonPrevFKPage;
         private System.Windows.Forms.DataGridView secondFKTable;
         private System.Windows.Forms.DataGridView mainFKTable;
-        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Label label17;
         private System.Windows.Forms.Label label15;
-        private System.Windows.Forms.Label pageNumber;
+        private System.Windows.Forms.Label pagePKNumber;
+        private System.Windows.Forms.Label pageFKNumber;
+        private System.Windows.Forms.NumericUpDown numericUpDown1;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.NumericUpDown numericUpDown2;
+        private System.Windows.Forms.Label label10;
     }
 }
 

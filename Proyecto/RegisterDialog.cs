@@ -13,8 +13,8 @@ namespace Proyecto {
         private int modify;
         public List<string> output;
         /* Ubica cada text box para pedir los datos de todos los atributos de la entidad*/
-        public RegisterDialog(List<string> inputs, int keyIndex, int modify) {
-            int controlPos = keyIndex == -1 ? 0 : keyIndex;
+        public RegisterDialog(List<string> inputs, int keyToDelete, int modify) {
+            int controlPos = keyToDelete == -1 ? 0 : keyToDelete;
             InitializeComponent();
             this.modify = modify;
             switch (modify) {
@@ -39,7 +39,7 @@ namespace Proyecto {
                 b.Location = new Point(20, y + 3);
                 a.Name = i.ToString();
                 a.Location = new Point(145, y);
-                if (modify == 0) {
+                if (modify == 0 || modify == 1) {
                     Controls.Add(a);
                     Controls.Add(b);
                     y += 26;
@@ -63,7 +63,7 @@ namespace Proyecto {
         private void button1_Click(object sender, EventArgs e) {
             DialogResult = DialogResult.OK;
             output = new List<string>();
-            if (modify == 0) {
+            if (modify == 0 || modify == 1) {
                 for (int i = 0; i < cant; i++) {
                     output.Add(((TextBox)Controls[i.ToString()]).Text);
                 }

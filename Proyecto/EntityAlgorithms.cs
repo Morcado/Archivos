@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
 namespace Proyecto {
     public partial class DataBase {
-
         /* Busca una entidad en data, si no la encuentra regresa falso
          * index tiene la direccion de la entidad, ant la direccion de la anterior
          * Si la lista esta vacia: return false, index = -1, ant = ,1
@@ -98,11 +98,6 @@ namespace Proyecto {
         private bool ModifyEntity(string newName, ref long index) {
             long aux = index, index2 = -1, ant2 = -1;
 
-            // Completa el tamaño del nombre (30 bytes)
-            List<char> nName = newName.ToList();
-            for (int i = nName.Count; i < 30; i++) {
-                nName.Add('~');
-            }
             // "Elimina" la entidad en i
             string tmp = Encoding.UTF8.GetString(data.ToArray(), (int)index, 30).Replace("~", "");
             DeleteEntity(tmp);
@@ -111,9 +106,14 @@ namespace Proyecto {
             // Inserta la entidad como si fuera nueva, manteniendo su dirección actual
             if (SearchEntity(newName, ref index2, ref ant2) == false) {
 
+                // Completa el tamaño del nombre (30 bytes)
+                List<byte> nName = Encoding.UTF8.GetBytes(newName).ToList();
+                for (int i = nName.Count; i < 30; i++) {
+                    nName.Add(Convert.ToByte('~'));
+                }
+
                 // Cambia el nombre de la entidad
-                byte[] nDName = Encoding.UTF8.GetBytes(nName.ToArray());
-                ReplaceBytes(data, index, nDName);
+                ReplaceBytes(data, index, nName.ToArray());
                 // Si se inserta en la cabecera
                 if (index2 == head) {
                     ReplaceBytes(data, aux + 54, BitConverter.GetBytes(index2));
