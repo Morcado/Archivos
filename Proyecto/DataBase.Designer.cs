@@ -158,7 +158,7 @@
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
             this.exitToolStripMenuItem.Size = new System.Drawing.Size(127, 22);
             this.exitToolStripMenuItem.Text = "Exit";
-            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.ExitToolStripMenuItem_Click);
             // 
             // errorProvider1
             // 
@@ -216,7 +216,7 @@
             this.button1.TabIndex = 25;
             this.button1.Text = "Go";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.button1.Click += new System.EventHandler(this.Button1_Click);
             // 
             // pageFKNumber
             // 
@@ -255,7 +255,7 @@
             this.buttonNextFKPage.TabIndex = 18;
             this.buttonNextFKPage.Text = "→";
             this.buttonNextFKPage.UseVisualStyleBackColor = true;
-            this.buttonNextFKPage.Click += new System.EventHandler(this.nextFKPage);
+            this.buttonNextFKPage.Click += new System.EventHandler(this.NextFKPage);
             // 
             // buttonPrevFKPage
             // 
@@ -268,7 +268,7 @@
             this.buttonPrevFKPage.TabIndex = 19;
             this.buttonPrevFKPage.Text = "←";
             this.buttonPrevFKPage.UseVisualStyleBackColor = true;
-            this.buttonPrevFKPage.Click += new System.EventHandler(this.prevFKPage);
+            this.buttonPrevFKPage.Click += new System.EventHandler(this.PrevFKPage);
             // 
             // secondFKTable
             // 
@@ -333,7 +333,7 @@
             this.button2.TabIndex = 17;
             this.button2.Text = "Go";
             this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.button2.Click += new System.EventHandler(this.Button2_Click);
             // 
             // numericUpDown2
             // 
@@ -394,7 +394,7 @@
             this.buttonNextPKPage.TabIndex = 11;
             this.buttonNextPKPage.Text = "→";
             this.buttonNextPKPage.UseVisualStyleBackColor = true;
-            this.buttonNextPKPage.Click += new System.EventHandler(this.nextPKPage);
+            this.buttonNextPKPage.Click += new System.EventHandler(this.NextPKPage);
             // 
             // buttonPrevPKPage
             // 
@@ -407,7 +407,7 @@
             this.buttonPrevPKPage.TabIndex = 11;
             this.buttonPrevPKPage.Text = "←";
             this.buttonPrevPKPage.UseVisualStyleBackColor = true;
-            this.buttonPrevPKPage.Click += new System.EventHandler(this.prevPKPage);
+            this.buttonPrevPKPage.Click += new System.EventHandler(this.PrevPKPage);
             // 
             // secondPKTable
             // 
@@ -535,7 +535,7 @@
             this.buttonReg1.TabIndex = 9;
             this.buttonReg1.Text = "Create Register File";
             this.buttonReg1.UseVisualStyleBackColor = true;
-            this.buttonReg1.Click += new System.EventHandler(this.btnCreateRegisterFile);
+            this.buttonReg1.Click += new System.EventHandler(this.BtnCreateRegisterFile);
             // 
             // registerTable
             // 
@@ -572,7 +572,7 @@
             this.comboBoxReg.Name = "comboBoxReg";
             this.comboBoxReg.Size = new System.Drawing.Size(130, 21);
             this.comboBoxReg.TabIndex = 5;
-            this.comboBoxReg.TextChanged += new System.EventHandler(this.comboBoxReg_TextChanged);
+            this.comboBoxReg.TextChanged += new System.EventHandler(this.ComboBoxReg_TextChanged);
             // 
             // tabPage1
             // 
@@ -608,7 +608,7 @@
             this.buttonAtt2.TabIndex = 3;
             this.buttonAtt2.Text = "Modify attribute";
             this.buttonAtt2.UseVisualStyleBackColor = true;
-            this.buttonAtt2.Click += new System.EventHandler(this.btnModifyAttribute);
+            this.buttonAtt2.Click += new System.EventHandler(this.BtnModifyAttribute);
             // 
             // buttonAtt3
             // 
@@ -619,7 +619,7 @@
             this.buttonAtt3.TabIndex = 2;
             this.buttonAtt3.Text = "Delete attribute";
             this.buttonAtt3.UseVisualStyleBackColor = true;
-            this.buttonAtt3.Click += new System.EventHandler(this.btnRemoveAttribute);
+            this.buttonAtt3.Click += new System.EventHandler(this.BtnRemoveAttribute);
             // 
             // buttonAtt1
             // 
@@ -630,7 +630,7 @@
             this.buttonAtt1.TabIndex = 1;
             this.buttonAtt1.Text = "Add attribute";
             this.buttonAtt1.UseVisualStyleBackColor = true;
-            this.buttonAtt1.Click += new System.EventHandler(this.btnAddAtribute);
+            this.buttonAtt1.Click += new System.EventHandler(this.BtnAddAtribute);
             // 
             // label4
             // 
@@ -659,7 +659,7 @@
             this.comboBoxAtt.Name = "comboBoxAtt";
             this.comboBoxAtt.Size = new System.Drawing.Size(130, 21);
             this.comboBoxAtt.TabIndex = 0;
-            this.comboBoxAtt.TextChanged += new System.EventHandler(this.comboBoxAtt_TextChanged);
+            this.comboBoxAtt.TextChanged += new System.EventHandler(this.ComboBoxAtt_TextChanged);
             // 
             // tabPage2
             // 
@@ -714,7 +714,7 @@
             this.buttonEnt2.TabIndex = 1;
             this.buttonEnt2.Text = "Modify entity";
             this.buttonEnt2.UseVisualStyleBackColor = true;
-            this.buttonEnt2.Click += new System.EventHandler(this.btnModifyEntity);
+            this.buttonEnt2.Click += new System.EventHandler(this.BtnModifyEntity);
             // 
             // buttonEnt3
             // 
@@ -725,7 +725,7 @@
             this.buttonEnt3.TabIndex = 2;
             this.buttonEnt3.Text = "Remove entity";
             this.buttonEnt3.UseVisualStyleBackColor = true;
-            this.buttonEnt3.Click += new System.EventHandler(this.btnRemoveEntity);
+            this.buttonEnt3.Click += new System.EventHandler(this.BtnRemoveEntity);
             // 
             // buttonEnt1
             // 
@@ -736,7 +736,7 @@
             this.buttonEnt1.TabIndex = 0;
             this.buttonEnt1.Text = "Add entity";
             this.buttonEnt1.UseVisualStyleBackColor = true;
-            this.buttonEnt1.Click += new System.EventHandler(this.btnAddEntity);
+            this.buttonEnt1.Click += new System.EventHandler(this.BtnAddEntity);
             // 
             // entityTable
             // 

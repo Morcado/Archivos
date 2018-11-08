@@ -35,6 +35,24 @@ namespace Proyecto {
             }
         }
 
+        private bool FindFK(string keyName, ref long idxAdrs) {
+            long block = -1, prevBlock = -1;
+            byte[] indexP = index.ToArray();
+
+            for (int i = 0; i < 50; i++) {
+                idxAdrs = i * (key.FKSize + 8);
+                block = BitConverter.ToInt64(indexP, (int)idxAdrs + key.FKSize);
+                if (block != -1) {
+
+
+
+                    prevBlock = block;
+                }
+            }
+
+            return false;
+        }
+
         /* Busca en el archivo de índice la clave foranea para insertar un dato. Primero
          * busca en la lista de 50, si se encuentra el índice con la clave de búsqueda. Si
          * no se encuentra, regresa la dirección del archivo de índice donde va a estar
@@ -71,6 +89,14 @@ namespace Proyecto {
             }
             idxAdrs = largeAdrs;
             return false;
+        }
+
+        private void ShiftFKDown(long indAux, long blockDir) {
+
+        }
+
+        private void ShiftFKUp(long indAux, long blockDir) {
+
         }
     }
 }

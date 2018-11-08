@@ -151,19 +151,20 @@ namespace Proyecto {
 
         private void OpenCSV(object sender, EventArgs e) {
             MessageBox.Show("In progress...");
-            OpenFileDialog open = new OpenFileDialog();
-            open.InitialDirectory = Application.StartupPath + "\\examples";
-            open.Filter = "CSV (*.csv)|*.csv|All files (*.*)|*.*";
-            open.DefaultExt = ".bin";
+            OpenFileDialog open = new OpenFileDialog {
+                InitialDirectory = Application.StartupPath + "\\examples",
+                Filter = "CSV (*.csv)|*.csv|All files (*.*)|*.*",
+                DefaultExt = ".bin"
+            };
 
             //if (open.ShowDialog() == DialogResult.OK) {
             //   var Lines = File.ReadLines(open.FileName).Select(a => a.Split(';'));
-                //var CSV = from line in Lines select (line.Split(',')).ToArray();
+            //var CSV = from line in Lines select (line.Split(',')).ToArray();
             //}
         }
 
         // Cierra la aplicación
-        private void exitToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void ExitToolStripMenuItem_Click(object sender, EventArgs e) {
             Application.Exit();
         }
 
@@ -239,7 +240,7 @@ namespace Proyecto {
         #region User Interface
 
         // Actualiza la tabla de atributos eligiendo una entidad del combobox1
-        private void comboBoxAtt_TextChanged(object sender, EventArgs e) {
+        private void ComboBoxAtt_TextChanged(object sender, EventArgs e) {
             long eIndex = -1, eAnt = -1;
             SearchEntity(comboBoxAtt.Text, ref eIndex, ref eAnt);
             selectedEntityAdrs = eIndex;
@@ -260,7 +261,7 @@ namespace Proyecto {
         /* Se hace validación en la pagina de los atributos
          * Valida la entidad y si el archivo de datos está creado. Los botones se activan cuando ya está creado
          * Si no está creado se desactivan los botones*/
-        private void comboBoxReg_TextChanged(object sender, EventArgs e) {
+        private void ComboBoxReg_TextChanged(object sender, EventArgs e) {
             long eIndex = -1, eAnt = -1;
             byte[] dataP = data.ToArray();
             SearchEntity(comboBoxReg.Text, ref eIndex, ref eAnt);
@@ -556,7 +557,7 @@ namespace Proyecto {
         /* Evento del boton que agrega una entidad en el archivo
          * Las entidades son insertadas ordenadas y primero se verifica que no exista la entidad antes de
          * insertarla. El largo maximo del nombre de la entidad es de 30 caracteres */
-        private void btnAddEntity(object sender, EventArgs e) {
+        private void BtnAddEntity(object sender, EventArgs e) {
             NewEntityDialog dg = new NewEntityDialog(0);
             dg.ShowDialog();
             if (dg.DialogResult == DialogResult.OK) {
@@ -573,7 +574,7 @@ namespace Proyecto {
 
         /* Elimina una entidad del archivo, sólo elimina la referencia, el archivo
         queda del mismo tamaño. Primero verifica que la entidad exista, si existe la elimina */
-        private void btnRemoveEntity(object sender, EventArgs e) {
+        private void BtnRemoveEntity(object sender, EventArgs e) {
             NewEntityDialog et = new NewEntityDialog(3);
             et.ShowDialog();
             if (et.DialogResult == DialogResult.OK) {
@@ -593,7 +594,7 @@ namespace Proyecto {
         /* Modifica una entidad. Se reemplazan los datos en la misma dirección del archivo y
          * por lo tanto el tamaño del archivo no se modifica. Primero se verifica que la entidad existe,
          * y después se piden los nuevos datos para reemplazar a los viejos */
-        private void btnModifyEntity(object sender, EventArgs e) {
+        private void BtnModifyEntity(object sender, EventArgs e) {
             NewEntityDialog et = new NewEntityDialog(2);
             long index = -1, ant = -1;
 
@@ -624,7 +625,7 @@ namespace Proyecto {
         #region Attribute
         /* Agrega un atributo a la entidad seleccionada. Primero se verifica que el atributo no exista.
          * Los atributos se agregan secuencialmente al final del archivo */
-        private void btnAddAtribute(object sender, EventArgs e) {
+        private void BtnAddAtribute(object sender, EventArgs e) {
             NewAttributeDialog dg = new NewAttributeDialog(0);
             dg.ShowDialog();
             if (dg.DialogResult == DialogResult.OK) {
@@ -638,7 +639,7 @@ namespace Proyecto {
 
         /* Modifica un atributo de la entidad seleccionada. Primero se verifica que el atributo exista y
         después se modifica la dirección, por lo tanto el tamaño del archivo no se modifica. */
-        private void btnModifyAttribute(object sender, EventArgs e) {
+        private void BtnModifyAttribute(object sender, EventArgs e) {
             NewEntityDialog ed = new NewEntityDialog(4);
             long aIndex = -1, aAnt = -1;
             
@@ -665,7 +666,7 @@ namespace Proyecto {
 
         /* Elimina la referencia del atributo en el archivo de la entidad seleccionada. El tamaño del
          * archivo no se modifica. Se enlaza el atributo anterior con el siguiente */
-        private void btnRemoveAttribute(object sender, EventArgs e) {
+        private void BtnRemoveAttribute(object sender, EventArgs e) {
             NewEntityDialog ed = new NewEntityDialog(5);
             ed.ShowDialog();
             if (ed.DialogResult == DialogResult.OK) {
@@ -684,7 +685,7 @@ namespace Proyecto {
         #endregion
         #region Register
         /* Crea un archivo de datos para la entidad seleccionada. Sólo se puede crear si no existe */
-        private void btnCreateRegisterFile(object sender, EventArgs e) {
+        private void BtnCreateRegisterFile(object sender, EventArgs e) {
             try {
                 bw = new BinaryWriter(new FileStream(Application.StartupPath + "\\examples\\" + comboBoxReg.Text + ".dat", FileMode.Create));
                 bw.Close();
@@ -746,15 +747,93 @@ namespace Proyecto {
         private void BtnModifyRegister(object sender, EventArgs e) {
             RegisterDialog rd = new RegisterDialog(inputs, key.searchKeyAttribIndex, 2);
             if (rd.ShowDialog() == DialogResult.OK) {
-                long rIndex = -1, rAnt = -1;
-                if (SearchRegistry(rd.output[0], ref rIndex, ref rAnt, true)) {
-                    RegisterDialog rg2 = new RegisterDialog(inputs, -1, 1);
-                    if (rg2.ShowDialog() == DialogResult.OK) {
-                        if (ModifyRegister(rg2.output, ref rIndex)) {
-                            WriteDictionary();
-                            WriteRegisterFile(comboBoxReg.Text);
-                            UpdateRegisterTable();
-                            UpdateEntityTable();
+                RegisterDialog rg2 = new RegisterDialog(inputs, -1, 1);
+                long currentRegAdrs = register.Count;
+                if (key.PK) {
+                    // Busca primero el indice del registro a eliminar
+                    long prevBlock = -1, idxAdrs = -1, blockAdrs = -1, prevIdxAdrs = -1;
+                    if (FindPK(rd.output[0], ref prevBlock, ref idxAdrs, ref blockAdrs)) {
+                        if (rg2.ShowDialog() == DialogResult.OK) {
+                            // Buscar el registro anterior, usando el prevBlock
+                            if (blockAdrs == -1 && prevBlock != -1) {
+                                prevIdxAdrs = GetLastPK(prevBlock);
+                            }
+                            else {
+                                if (idxAdrs != blockAdrs) {
+                                    prevIdxAdrs = idxAdrs - 8 - key.PKSize;
+                                }
+                                else {
+                                    if (prevBlock == -1) {
+                                        prevIdxAdrs = -1;
+                                    }
+                                }
+                            }
+
+                            long prevRegAdrs = -1;
+                            long regAdrs = BitConverter.ToInt64(index.ToArray(), (int)idxAdrs + key.PKSize);
+
+                            if (prevIdxAdrs != -1) {
+                                prevRegAdrs = BitConverter.ToInt64(index.ToArray(), (int)prevIdxAdrs + key.PKSize);
+                            }
+                            //else {
+                            //    if (currentRegAdrs != 0) {
+                            //        prevReg = currentRegAdrs - 8 - registerSize - 8;
+                            //    }
+                            //}
+
+                            // Borra el registro sin borrarlo
+                            if (key.searchKey) {
+                                int pos = 8;
+                                for (int i = 0; i < key.searchKeyAttribIndex; i++) {
+                                    pos += sizes[i];
+                                }
+                                string tmp = Encoding.UTF8.GetString(register.ToArray(), (int)regAdrs + pos, key.searchKeySize).Replace("~", "");
+                                DeleteRegister(tmp);
+                            }
+
+                            ReplaceRegister(rd.output, regAdrs, prevRegAdrs);
+
+                            // Inserta nuevamente el registro
+                            prevIdxAdrs = idxAdrs = blockAdrs = -1;
+                            bool resp = InsertPrimaryKey(rd.output[key.PKAtribListIndex], ref prevIdxAdrs, ref idxAdrs, ref blockAdrs);
+                            if (resp) {
+                                if (key.FK) {
+                                    bool resp2 = InsertForeignKey(rd.output[key.FKAtribListIndex], ref idxAdrs);
+                                }
+
+                                long prevReg = -1;
+
+                                if (key.searchKey && prevIdxAdrs != -1) {
+                                    prevReg = BitConverter.ToInt64(index.ToArray(), (int)prevIdxAdrs + key.PKSize);
+                                }
+                                else {
+                                    if (currentRegAdrs != 0) {
+                                        prevReg = currentRegAdrs - 8 - registerSize - 8;
+                                    }
+                                }
+
+                                CompletePK(idxAdrs, regAdrs);
+                            }
+                        }
+                    }
+                }
+                else {
+                    if (key.FK) {
+                        if (rg2.ShowDialog() == DialogResult.OK) { 
+                            // modifica con fk
+                        }
+                    }
+                    else {
+                        long rIndex = -1, rAnt = -1;
+                        if (SearchRegistry(rd.output[0], ref rIndex, ref rAnt, true)) {
+                            if (rg2.ShowDialog() == DialogResult.OK) {
+                                if (ModifyRegister(rg2.output, ref rIndex, rAnt)) {
+                                    WriteDictionary();
+                                    WriteRegisterFile(comboBoxReg.Text);
+                                    UpdateRegisterTable();
+                                    UpdateEntityTable();
+                                }
+                            }
                         }
                     }
                 }
@@ -832,6 +911,7 @@ namespace Proyecto {
                 List<string> change = rd.output;
                 if (DeleteRegister(rd.output[0])) {
                     WriteDictionary();
+                    UpdateMainPKTable();
                     UpdateRegisterTable();
                     MessageBox.Show("Register deleted sucessfully", "Success");
                 }
@@ -935,7 +1015,7 @@ namespace Proyecto {
             numericUpDown2.Maximum = key.PKIsChar ? 26 : 9;
         }
 
-        private void nextPKPage(object sender, EventArgs e) {
+        private void NextPKPage(object sender, EventArgs e) {
             int cant = !key.PKIsChar ? 9 : 26;
             if (pagePK < cant) {
                 buttonPrevPKPage.Enabled = true;
@@ -949,7 +1029,7 @@ namespace Proyecto {
             UpdateSecondPKTable();
         }
 
-        private void prevPKPage(object sender, EventArgs e) {
+        private void PrevPKPage(object sender, EventArgs e) {
             if (pagePK > 1) {
                 buttonNextPKPage.Enabled = true;
                 pagePK--;
@@ -1051,7 +1131,7 @@ namespace Proyecto {
 
         }
 
-        private void prevFKPage(object sender, EventArgs e) {
+        private void PrevFKPage(object sender, EventArgs e) {
             if (pageFK > 1) {
                 buttonNextFKPage.Enabled = true;
                 pageFK--;
@@ -1063,7 +1143,7 @@ namespace Proyecto {
             UpdateSecondFKTable();
         }
 
-        private void nextFKPage(object sender, EventArgs e) {
+        private void NextFKPage(object sender, EventArgs e) {
             int cant = 50;
             if (pageFK < cant) {
                 buttonPrevFKPage.Enabled = true;
@@ -1095,7 +1175,7 @@ namespace Proyecto {
         }
 
         // Elige una pagina del indice secundario
-        private void button1_Click(object sender, EventArgs e) {
+        private void Button1_Click(object sender, EventArgs e) {
             pageFK = Convert.ToInt32(numericUpDown1.Value);
             pageFKNumber.Text = pageFK.ToString();
             if (pageFK == 50) {
@@ -1107,7 +1187,7 @@ namespace Proyecto {
             UpdateSecondFKTable();
         }
 
-        private void button2_Click(object sender, EventArgs e) {
+        private void Button2_Click(object sender, EventArgs e) {
             pagePK = Convert.ToInt32(numericUpDown2.Value);
             pagePKNumber.Text = key.PKIsChar ? Convert.ToChar(pagePK + 64).ToString() : pagePK.ToString();
             if (pagePK == 50) {

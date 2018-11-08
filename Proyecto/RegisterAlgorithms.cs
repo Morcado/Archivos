@@ -98,6 +98,52 @@ namespace Proyecto {
             return newAdrs;
         }
 
+        // Recibe la dirección del registro que se va a modificar.
+        private long ReplaceRegister(List<string> output, long newAdrs, long prevRegAdrs) {
+            int pos = 8;
+            for (int i = 0; i < types.Count; i++) {
+                if (types[i] == 'C') {
+                    byte[] byteName = Encoding.UTF8.GetBytes(output[i]);
+                    List<byte> bn = byteName.ToList();
+                    for (int j = bn.Count; j < sizes[i]; j++) {
+                        bn.Add(Convert.ToByte('~'));
+                    }
+                    ReplaceBytes(register, newAdrs + pos, bn.ToArray());
+                }
+                else {
+                    ReplaceBytes(register, newAdrs + pos, BitConverter.GetBytes(Convert.ToInt32(output[i])));
+                }
+                pos += sizes[i];
+                //ReplaceBytes();
+            }
+
+            if (prevRegAdrs != -1) {
+                long head = BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 46);
+                long regAdrs = BitConverter.ToInt64(register.ToArray(), (int)prevRegAdrs + 8 + registerSize);
+
+                if (regAdrs == head) {
+                    // Reemplaza la cabecera del diccionario de datos de los registos
+                    ReplaceBytes(register, newAdrs + 8 + registerSize, BitConverter.GetBytes(regAdrs));
+                    ReplaceBytes(data, selectedEntityAdrs + 46, BitConverter.GetBytes(newAdrs));
+                }
+                else {
+                    ReplaceBytes(register, prevRegAdrs + 8 + registerSize, BitConverter.GetBytes(newAdrs));
+                    if (regAdrs != -1) {
+                        long aux = BitConverter.ToInt64(register.ToArray(), (int)regAdrs);
+                        ReplaceBytes(register, newAdrs + 8 + registerSize, BitConverter.GetBytes(aux));
+                    }
+                }
+            }
+            else {
+                long oldHead = BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 46);
+                ReplaceBytes(data, selectedEntityAdrs + 46, BitConverter.GetBytes(newAdrs));
+                if (newAdrs != 0) {
+                    ReplaceBytes(register, newAdrs + 8 + registerSize, BitConverter.GetBytes(oldHead));
+                }
+            }
+            return newAdrs;
+        }
+
         /* Inserta un registro de forma ordenada en el archivo de registro de la entidad. Si el tipo de indice
          * es primario o secundario, agrega el indice incluso si ya existe la clave de busqueda*/
         private bool AddRegister(List<string> output) {
@@ -130,17 +176,13 @@ namespace Proyecto {
                     }
                
                     newAdrs = InsertRegister(output, prevReg);
-                    CompleteKey(idxAdrs, newAdrs);
+                    CompletePK(idxAdrs, newAdrs);
                     return true;
                 }
             }
             else {
                 if (key.FK) {
-                    resp = InsertForeignKey(output[key.FKAtribListIndex], ref idxAdrs);
-                    if (resp) {
-                        // Inserta registro
-                        return true;
-                    }
+                    return InsertForeignKey(output[key.FKAtribListIndex], ref idxAdrs);
                 }
                 else {
                     if (!SearchRegistry(output[key.searchKeyAttribIndex], ref rIndex, ref rAnt, false)) {
@@ -152,95 +194,107 @@ namespace Proyecto {
             return false;
         }
 
-        /* Inserta un registro de forma secuencial en el archivo de registro de la entidad */
+        // Obtiene la direccion del indice anterior en un registro con clave de busqueda
+        private long GetPrevIdxAdrs(long idxAdrs, long blockAdrs, long prevBlock) {
+            if (blockAdrs == -1 && prevBlock != -1) {
+                return GetLastPK(prevBlock);
+            }
+            /* Si el bloque anterior no existe, entonces se checa que el indice no sea el primero
+             * Si no es el primero, el se obtiene el índice inmediato anterior */
+            else {
+                if (idxAdrs != blockAdrs) {
+                    return idxAdrs - 8 - key.PKSize;
+                }
+                // Si es el primer indice (idx = block), entonces no hay anterior
+                else {
+                    if (prevBlock == -1) {
+                        return -1;
+                    }
+                }
+            }
+            return -1;
+        }
 
-        // Elimina un registro dada su clave de busqueda, utiliza la primera por defecto si no la tiene
+        // Elimina un registro dada su clave de busqueda o indice, utiliza la primera por defecto si no la tiene
         private bool DeleteRegister(string output) {
             long rIndex = -1, rAnt = -1;
             long currentAdrs = register.Count;
-            if (SearchRegistry(output, ref rIndex, ref rAnt, true)) {
-                long next = BitConverter.ToInt64(register.ToArray(), (int)rIndex + registerSize + 8);
-                if (rIndex == BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 46)) {
-                    ReplaceBytes(data, selectedEntityAdrs + 46, BitConverter.GetBytes(next));
-                    textBoxReg.Text = next.ToString();
-                    UpdateEntityTable();
+
+            // Si tiene indice primario, busca el índice para elimiar el registri
+            if (key.PK) {
+                long prevBlock = -1, blockAdrs = -1, idxAdrs = -1;
+                long prevIdxAdrs = -1;
+                if (FindPK(output, ref prevBlock, ref idxAdrs, ref blockAdrs)) {
+                    // Si tiene clave de busqueda, encuentra el registro anterior
+                    long regAdrs = BitConverter.ToInt64(index.ToArray(), (int)idxAdrs + key.PKSize);
+                    long prevRegAdrs = -1;
+                    long nextRegAdrs = BitConverter.ToInt64(register.ToArray(), (int)regAdrs + registerSize + 8);
+
+                    // Si tiene clave de busqueda, busca el registro anterior de acuerdo a los bloques
+                    if (key.searchKey) {
+                        prevIdxAdrs= GetPrevIdxAdrs(idxAdrs, blockAdrs, prevBlock);
+                        if (prevIdxAdrs != -1) {
+                            prevRegAdrs = BitConverter.ToInt64(register.ToArray(), (int)prevIdxAdrs + key.PKSize);
+                        }
+                    }
+                    // Sino, busca el registro anterior solamente llendo hacia atras en el arreglo, 
+                    // si es que se puede, si no entonces no hay registro anterior
+                    else {
+                        if (regAdrs >= 8 + registerSize + 8) {
+                            prevRegAdrs = regAdrs - 8 - registerSize - 8;
+                        }
+                    }
+
+                    if (regAdrs == BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 46)) {
+                        ReplaceBytes(data, selectedEntityAdrs + 46, BitConverter.GetBytes(nextRegAdrs));
+                        textBoxReg.Text = nextRegAdrs.ToString();
+                        UpdateEntityTable();
+                    }
+                    else {
+                        ReplaceBytes(register, prevRegAdrs + registerSize + 8, BitConverter.GetBytes(nextRegAdrs));
+                    }
+
+                    ShiftPKUp(idxAdrs, blockAdrs);
+                    UpdateMainPKTable();
+                    WriteIndexFile(comboBoxReg.Text);
+                    return true;
                 }
-                // ...en el centro o al final
-                else {
-                    ReplaceBytes(register, rAnt + registerSize + 8, BitConverter.GetBytes(next));
-                }
-                return true;
             }
+            else {
+                if (key.FK) {
+                    if (key.searchKey) {
+
+                    }
+                    else {
+
+                    }
+                }
+                else {
+                    
+                }
+            }
+
+            //if (SearchRegistry(output, ref rIndex, ref rAnt, true)) {
+            //    long next = BitConverter.ToInt64(register.ToArray(), (int)rIndex + registerSize + 8);
+            //    if (rIndex == BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 46)) {
+            //        ReplaceBytes(data, selectedEntityAdrs + 46, BitConverter.GetBytes(next));
+            //        textBoxReg.Text = next.ToString();
+            //        UpdateEntityTable();
+            //    }
+            //    // ...en el centro o al final
+            //    else {
+            //        ReplaceBytes(register, rAnt + registerSize + 8, BitConverter.GetBytes(next));
+            //    }
+            //    return true;
+            //}
             return false;
         }
 
         /* Modifica un registro en el archivo de datos. Si tiene clave de búsqueda entonces verifica para 
          * reordenar los elementos, si no tiene clave de búsqueda, entonces solamente modifica los valores en
          * donde está */
-        private bool ModifyRegister(List<string> newData, ref long rIndex) {
-            int pos = 8;
-            long rIndex2 = -1, rAnt2 = -1;
-            if (key.searchKey) {
-                for (int i = 0; i < key.searchKeyAttribIndex; i++) {
-                    pos += sizes[i];
-                }
-                string tmp = Encoding.UTF8.GetString(register.ToArray(), (int)rIndex + pos, key.searchKeySize).Replace("~", "");
-                DeleteRegister(tmp);
-
-                if (!SearchRegistry(newData[key.searchKeyAttribIndex], ref rIndex2, ref rAnt2, false)) {
-                    pos = 8;
-                    for (int i = 0; i < types.Count; i++) {
-                        if (types[i] == 'C') {
-                            byte[] byteName = Encoding.UTF8.GetBytes(newData[i]);
-                            List<byte> bn = byteName.ToList();
-                            for (int j = bn.Count; j < sizes[i]; j++) {
-                                bn.Add(Convert.ToByte('~'));
-                            }
-                            ReplaceBytes(register, rIndex + pos, bn.ToArray());
-                        }
-                        else {
-                            ReplaceBytes(register, rIndex + pos, BitConverter.GetBytes(Convert.ToInt32(newData[i])));
-                        }
-                        pos += sizes[i];
-                        //ReplaceBytes();
-                    }
-                    long head = BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 46);
-                    if (rIndex2 == head) {
-                        // Reemplaza la cabecera del diccionario de datos de los registos
-                        ReplaceBytes(register, rIndex + 8 + registerSize, BitConverter.GetBytes(rIndex2));
-
-                        ReplaceBytes(data, selectedEntityAdrs + 46, BitConverter.GetBytes(rIndex));
-                    }
-                    else {
-                        ReplaceBytes(register, rAnt2 + 8 + registerSize, BitConverter.GetBytes(rIndex));
-                        if (rIndex2 != -1) {
-                            long aux = BitConverter.ToInt64(register.ToArray(), (int)rIndex2);
-                            ReplaceBytes(register, rIndex + 8 + registerSize, BitConverter.GetBytes(aux));
-                        }
-                    }
-                    return true;
-                }
-            }
-            else {
-                for (int i = 0; i < types.Count; i++) {
-                    if (types.Count == 'C') {
-                        byte[] byteName = Encoding.UTF8.GetBytes(newData[i]);
-                        List<byte> bn = byteName.ToList();
-                        for (int j = bn.Count; j < sizes[i]; j++) {
-                            bn.Add(Convert.ToByte('~'));
-                        }
-                        ReplaceBytes(register, rIndex + pos, byteName);
-                    }
-                    else {
-                        ReplaceBytes(register, rIndex + pos, BitConverter.GetBytes(Convert.ToInt32(newData[i])));
-                    }
-                    pos += sizes[i];
-                }
-                return true;
-            }
+        private bool ModifyRegister(List<string> newData, ref long rIndex, long prevIndex) {
             return true;
         }
-
-
     }
 }
