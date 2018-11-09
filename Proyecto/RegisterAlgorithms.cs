@@ -26,6 +26,9 @@ namespace Proyecto {
                         }
                     }
                     if (delete) {
+                        if (rIndex == -1) {
+                            return false;
+                        }
                         return true;
                     }
                     return false;
@@ -135,10 +138,21 @@ namespace Proyecto {
                 }
             }
             else {
+                long newRIndex = -1, newRAnt = -1;
+                SearchRegistry(output[key.searchKeyAttribIndex], ref newRIndex, ref newRAnt, false);
+
                 long oldHead = BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 46);
-                ReplaceBytes(data, selectedEntityAdrs + 46, BitConverter.GetBytes(newAdrs));
-                if (newAdrs != 0) {
-                    ReplaceBytes(register, newAdrs + 8 + registerSize, BitConverter.GetBytes(oldHead));
+                int a = 0;
+
+                if (newRAnt == -1) {
+                    ReplaceBytes(data, selectedEntityAdrs + 46, BitConverter.GetBytes(newAdrs));
+                    if (newAdrs != 0) {
+                        ReplaceBytes(register, newAdrs + 8 + registerSize, BitConverter.GetBytes(oldHead));
+                    }
+                }
+                else {
+                    ReplaceBytes(register, newRAnt + 8 + registerSize, BitConverter.GetBytes(newAdrs));
+                    ReplaceBytes(register, newAdrs + 8 + registerSize, BitConverter.GetBytes(newRIndex));
                 }
             }
             return newAdrs;
@@ -147,7 +161,7 @@ namespace Proyecto {
         /* Inserta un registro de forma ordenada en el archivo de registro de la entidad. Si el tipo de indice
          * es primario o secundario, agrega el indice incluso si ya existe la clave de busqueda*/
         private bool AddRegister(List<string> output) {
-            long rIndex = -1, rAnt = -1;
+            long rIndex = -1, rAnt = -1, newAdrs = -1;
             long prevIdxAdrs = -1, idxAdrs = -1, blockAdrs = -1;
             bool resp = false, resp2 = false;
             long currentRegAdrs = register.Count;
@@ -163,19 +177,30 @@ namespace Proyecto {
                     // Inserta registro y inserta la dirección en el indice
                     // Si es el primer registro, entonces inserta al principio
 
-                    // Si no habia bloque, entonces inserta solo el primero
-                    long prevReg = -1, newAdrs = -1;
+                    //long prevReg = -1, newAdrs = -1;
 
-                    if (key.searchKey && prevIdxAdrs != -1) { 
-                        prevReg = BitConverter.ToInt64(index.ToArray(), (int)prevIdxAdrs + key.PKSize);
-                    }
-                    else {
-                        if (currentRegAdrs != 0) {
-                            prevReg = currentRegAdrs - 8 - registerSize - 8;
+                    //if (key.searchKey && prevIdxAdrs != -1) { 
+                    //    prevReg = BitConverter.ToInt64(index.ToArray(), (int)prevIdxAdrs + key.PKSize);
+                    //}
+                    //else {
+                    //    if (currentRegAdrs != 0) {
+                    //        prevReg = currentRegAdrs - 8 - registerSize - 8;
+                    //    }
+                    //}
+                    if (key.searchKey) {
+                        resp = SearchRegistry(output[key.searchKeyAttribIndex], ref rIndex, ref rAnt, false);
+                        if (!resp) {
+                            newAdrs = InsertRegister(output, rAnt);
                         }
                     }
+                    else {
+                        if (register.Count >= 8 + registerSize + 8) {
+                            rAnt = register.Count - 8 - registerSize - 8;
+                        }
+                        newAdrs = InsertRegister(output, -1);
+                    }
                
-                    newAdrs = InsertRegister(output, prevReg);
+                    //long newAdrs = InsertRegister(output, rAnt);
                     CompletePK(idxAdrs, newAdrs);
                     return true;
                 }
@@ -215,86 +240,71 @@ namespace Proyecto {
             return -1;
         }
 
-        // Elimina un registro dada su clave de busqueda o indice, utiliza la primera por defecto si no la tiene
-        private bool DeleteRegister(string output) {
-            long rIndex = -1, rAnt = -1;
+        // Elimina un registro dada su clave de busqueda, utiliza la primera por defecto si no la tiene
+        // Regresa la direccion del registro, y recibe la direccion del dregistro y del anterior
+        private long DeleteRegister(long rIndex, long rAnt) {
+            //long rIndex = -1, rAnt = -1;
             long currentAdrs = register.Count;
 
-            // Si tiene indice primario, busca el índice para elimiar el registri
-            if (key.PK) {
-                long prevBlock = -1, blockAdrs = -1, idxAdrs = -1;
-                long prevIdxAdrs = -1;
-                if (FindPK(output, ref prevBlock, ref idxAdrs, ref blockAdrs)) {
-                    // Si tiene clave de busqueda, encuentra el registro anterior
-                    long regAdrs = BitConverter.ToInt64(index.ToArray(), (int)idxAdrs + key.PKSize);
-                    long prevRegAdrs = -1;
-                    long nextRegAdrs = BitConverter.ToInt64(register.ToArray(), (int)regAdrs + registerSize + 8);
-
-                    // Si tiene clave de busqueda, busca el registro anterior de acuerdo a los bloques
-                    if (key.searchKey) {
-                        prevIdxAdrs= GetPrevIdxAdrs(idxAdrs, blockAdrs, prevBlock);
-                        if (prevIdxAdrs != -1) {
-                            prevRegAdrs = BitConverter.ToInt64(register.ToArray(), (int)prevIdxAdrs + key.PKSize);
-                        }
-                    }
-                    // Sino, busca el registro anterior solamente llendo hacia atras en el arreglo, 
-                    // si es que se puede, si no entonces no hay registro anterior
-                    else {
-                        if (regAdrs >= 8 + registerSize + 8) {
-                            prevRegAdrs = regAdrs - 8 - registerSize - 8;
-                        }
-                    }
-
-                    if (regAdrs == BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 46)) {
-                        ReplaceBytes(data, selectedEntityAdrs + 46, BitConverter.GetBytes(nextRegAdrs));
-                        textBoxReg.Text = nextRegAdrs.ToString();
-                        UpdateEntityTable();
-                    }
-                    else {
-                        ReplaceBytes(register, prevRegAdrs + registerSize + 8, BitConverter.GetBytes(nextRegAdrs));
-                    }
-
-                    ShiftPKUp(idxAdrs, blockAdrs);
-                    UpdateMainPKTable();
-                    WriteIndexFile(comboBoxReg.Text);
-                    return true;
-                }
+            //if (SearchRegistry(output[0], ref rIndex, ref rAnt, true)) {
+                //prevRegAdrs = rAnt;
+            long next = BitConverter.ToInt64(register.ToArray(), (int)rIndex + registerSize + 8);
+            if (rIndex == BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 46)) {
+                ReplaceBytes(data, selectedEntityAdrs + 46, BitConverter.GetBytes(next));
+                textBoxReg.Text = next.ToString();
+                UpdateEntityTable();
             }
+            // ...en el centro o al final
             else {
-                if (key.FK) {
-                    if (key.searchKey) {
+                ReplaceBytes(register, rAnt + registerSize + 8, BitConverter.GetBytes(next));
+            }
 
-                    }
-                    else {
 
-                    }
+            if (key.PK) {
+                int ss = 8;
+                for (int i = 0; i < key.PKAtribListIndex; i++) {
+                    ss += sizes[i];
+                }
+                string keyname = "";
+                if (key.PKIsChar) {
+                    keyname = Encoding.UTF8.GetString(register.ToArray(), (int)rIndex + ss, sizes[key.PKAtribListIndex]).Replace("~", "");
                 }
                 else {
-                    
+                    keyname = BitConverter.ToInt32(register.ToArray(), (int)rIndex + ss).ToString();
+                }
+                long prevBlock = -1, blockAdrs = -1, idxAdrs = -1;
+                //long prevIdxAdrs = -1;
+                if (FindPK(keyname, ref prevBlock, ref idxAdrs, ref blockAdrs)) {
+                    ShiftPKUp(idxAdrs, blockAdrs);
                 }
             }
-
-            //if (SearchRegistry(output, ref rIndex, ref rAnt, true)) {
-            //    long next = BitConverter.ToInt64(register.ToArray(), (int)rIndex + registerSize + 8);
-            //    if (rIndex == BitConverter.ToInt64(data.ToArray(), (int)selectedEntityAdrs + 46)) {
-            //        ReplaceBytes(data, selectedEntityAdrs + 46, BitConverter.GetBytes(next));
-            //        textBoxReg.Text = next.ToString();
-            //        UpdateEntityTable();
-            //    }
-            //    // ...en el centro o al final
-            //    else {
-            //        ReplaceBytes(register, rAnt + registerSize + 8, BitConverter.GetBytes(next));
-            //    }
-            //    return true;
+            return rIndex;
             //}
-            return false;
+            //return -1;
         }
 
         /* Modifica un registro en el archivo de datos. Si tiene clave de búsqueda entonces verifica para 
          * reordenar los elementos, si no tiene clave de búsqueda, entonces solamente modifica los valores en
          * donde está */
-        private bool ModifyRegister(List<string> newData, ref long rIndex, long prevIndex) {
-            return true;
+        private bool ModifyRegister(List<string> oldReg, List<string> newData, long rIndexO, long rAntO) {
+            long rIndex = -1, rAnt = -1;
+            long idxAdrs = -1, blockAdrs = -1, prevIdxAdrs = -1;
+
+            // Si el nuevo registro no está, entonces se elimina el anterior
+            if (!SearchRegistry(newData[key.searchKeyAttribIndex], ref rIndex, ref rAnt, false)) {
+                DeleteRegister(rIndexO, rAntO);
+                //
+                ReplaceRegister(newData, rIndexO, rAntO);
+                if (key.PK) {
+                    InsertPrimaryKey(newData[key.PKAtribListIndex], ref prevIdxAdrs, ref idxAdrs, ref blockAdrs);
+                    CompletePK(idxAdrs, rIndexO);
+                }
+                if (key.FK) {
+
+                }
+                return true;
+            }
+            return false;
         }
     }
 }

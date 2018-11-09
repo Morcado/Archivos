@@ -747,93 +747,28 @@ namespace Proyecto {
         private void BtnModifyRegister(object sender, EventArgs e) {
             RegisterDialog rd = new RegisterDialog(inputs, key.searchKeyAttribIndex, 2);
             if (rd.ShowDialog() == DialogResult.OK) {
-                RegisterDialog rg2 = new RegisterDialog(inputs, -1, 1);
-                long currentRegAdrs = register.Count;
-                if (key.PK) {
-                    // Busca primero el indice del registro a eliminar
-                    long prevBlock = -1, idxAdrs = -1, blockAdrs = -1, prevIdxAdrs = -1;
-                    if (FindPK(rd.output[0], ref prevBlock, ref idxAdrs, ref blockAdrs)) {
-                        if (rg2.ShowDialog() == DialogResult.OK) {
-                            // Buscar el registro anterior, usando el prevBlock
-                            if (blockAdrs == -1 && prevBlock != -1) {
-                                prevIdxAdrs = GetLastPK(prevBlock);
-                            }
-                            else {
-                                if (idxAdrs != blockAdrs) {
-                                    prevIdxAdrs = idxAdrs - 8 - key.PKSize;
+                long rIndex = -1, rAnt = -1;
+                if (SearchRegistry(rd.output[0], ref rIndex, ref rAnt, true)) {
+                    RegisterDialog rg2 = new RegisterDialog(inputs, -1, 1);
+                    if (rg2.ShowDialog() == DialogResult.OK) {
+                        if (ModifyRegister(rd.output, rg2.output, rIndex, rAnt)) {
+                            UpdateRegisterTable();
+                            WriteRegisterFile(comboBoxReg.Text);
+                            WriteDictionary(); // optimizar
+                            if (key.PK || key.FK) {
+                                if (key.PK) {
+                                    UpdateMainPKTable();
                                 }
-                                else {
-                                    if (prevBlock == -1) {
-                                        prevIdxAdrs = -1;
-                                    }
-                                }
-                            }
-
-                            long prevRegAdrs = -1;
-                            long regAdrs = BitConverter.ToInt64(index.ToArray(), (int)idxAdrs + key.PKSize);
-
-                            if (prevIdxAdrs != -1) {
-                                prevRegAdrs = BitConverter.ToInt64(index.ToArray(), (int)prevIdxAdrs + key.PKSize);
-                            }
-                            //else {
-                            //    if (currentRegAdrs != 0) {
-                            //        prevReg = currentRegAdrs - 8 - registerSize - 8;
-                            //    }
-                            //}
-
-                            // Borra el registro sin borrarlo
-                            if (key.searchKey) {
-                                int pos = 8;
-                                for (int i = 0; i < key.searchKeyAttribIndex; i++) {
-                                    pos += sizes[i];
-                                }
-                                string tmp = Encoding.UTF8.GetString(register.ToArray(), (int)regAdrs + pos, key.searchKeySize).Replace("~", "");
-                                DeleteRegister(tmp);
-                            }
-
-                            ReplaceRegister(rd.output, regAdrs, prevRegAdrs);
-
-                            // Inserta nuevamente el registro
-                            prevIdxAdrs = idxAdrs = blockAdrs = -1;
-                            bool resp = InsertPrimaryKey(rd.output[key.PKAtribListIndex], ref prevIdxAdrs, ref idxAdrs, ref blockAdrs);
-                            if (resp) {
                                 if (key.FK) {
-                                    bool resp2 = InsertForeignKey(rd.output[key.FKAtribListIndex], ref idxAdrs);
+                                    UpdateMainFKTable();
                                 }
-
-                                long prevReg = -1;
-
-                                if (key.searchKey && prevIdxAdrs != -1) {
-                                    prevReg = BitConverter.ToInt64(index.ToArray(), (int)prevIdxAdrs + key.PKSize);
-                                }
-                                else {
-                                    if (currentRegAdrs != 0) {
-                                        prevReg = currentRegAdrs - 8 - registerSize - 8;
-                                    }
-                                }
-
-                                CompletePK(idxAdrs, regAdrs);
+                                WriteIndexFile(comboBoxReg.Text);
                             }
+
+                            MessageBox.Show("Deleted");
                         }
-                    }
-                }
-                else {
-                    if (key.FK) {
-                        if (rg2.ShowDialog() == DialogResult.OK) { 
-                            // modifica con fk
-                        }
-                    }
-                    else {
-                        long rIndex = -1, rAnt = -1;
-                        if (SearchRegistry(rd.output[0], ref rIndex, ref rAnt, true)) {
-                            if (rg2.ShowDialog() == DialogResult.OK) {
-                                if (ModifyRegister(rg2.output, ref rIndex, rAnt)) {
-                                    WriteDictionary();
-                                    WriteRegisterFile(comboBoxReg.Text);
-                                    UpdateRegisterTable();
-                                    UpdateEntityTable();
-                                }
-                            }
+                        else {
+                            MessageBox.Show("Not Deleted");
                         }
                     }
                 }
@@ -880,10 +815,10 @@ namespace Proyecto {
                 resp = AddRegister(forms);
                 if (resp) {
                     /* Optimizar */
-                    WriteDictionary();
                     UpdateAttribTable(comboBoxReg.Text);
-                    UpdateEntityTable();
+                    WriteDictionary();
                     /* Optimizar */
+
                     UpdateRegisterTable();
                     WriteRegisterFile(comboBoxReg.Text);
                     if (key.PK || key.FK) {
@@ -909,10 +844,25 @@ namespace Proyecto {
             RegisterDialog rd = new RegisterDialog(inputs, key.searchKeyAttribIndex, 2);
             if (rd.ShowDialog() == DialogResult.OK) {
                 List<string> change = rd.output;
-                if (DeleteRegister(rd.output[0])) {
-                    WriteDictionary();
-                    UpdateMainPKTable();
+                long rAnt = -1, rIndex = -1;
+                if (SearchRegistry(rd.output[0], ref rIndex, ref rAnt, true)) {
+                    DeleteRegister(rIndex, rAnt);
+                //}
+                //if (DeleteRegister(rd.output, ref prevRegAdrs) != -1) {
+                    UpdateEntityTable();
                     UpdateRegisterTable();
+                    UpdateAttribTable(comboBoxReg.Text);
+                    WriteRegisterFile(comboBoxReg.Text);
+                    WriteDictionary(); // optimizar
+                    if (key.PK || key.FK) {
+                        if (key.PK) {
+                            UpdateMainPKTable();
+                        }
+                        if (key.FK) {
+                            UpdateMainFKTable();
+                        }
+                        WriteIndexFile(comboBoxReg.Text);
+                    }
                     MessageBox.Show("Register deleted sucessfully", "Success");
                 }
                 else {

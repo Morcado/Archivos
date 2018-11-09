@@ -56,22 +56,7 @@ namespace Proyecto {
                 }
 
                 // Buscar el registro anterior, usando el bloque anterior si existe
-                if (blockAdrs == -1 && prevBlock != -1) {
-                    prevIdxAdrs = GetLastPK(prevBlock);
-                }
-                /* Si el bloque anterior no existe, entonces se checa que el indice no sea el primero
-                 * Si no es el primero, el se obtiene el índice inmediato anterior */
-                else {
-                    if (idxAdrs != blockAdrs) {
-                        prevIdxAdrs = idxAdrs - 8 - key.PKSize;
-                    }
-                    // Si es el primer indice (idx = block), entonces no hay anterior
-                    else {
-                        if (prevBlock == -1) {
-                            prevIdxAdrs = -1;
-                        }
-                    }
-                }
+                //prevIdxAdrs = GetPrevIdxAdrs(idxAdrs, blockAdrs, prevBlock);
 
                 // Inserta solo la clave del indice primario
                 InsertHalfKey(keyName, idxAdrs);
@@ -118,7 +103,7 @@ namespace Proyecto {
         private bool FindPK(string keyName, ref long prevBlock, ref long idxAdrs, ref long block) {
             // Incremento del ciclo, y tamaño del indice con apuntador (char = 10, int = 12)
             int inc = key.PKIsChar ? 26 : 9, idxTam = key.PKIsChar ? 10 : 12;
-            int v = key.PKIsChar ? Char.IsUpper(keyName[0]) ? 97 : 65 : 48;
+            int v = key.PKIsChar ? (Char.IsUpper(keyName[0]) ? 97 : 65) : 48;
             // v = key.PKIsChar ? 65 : 48 si es minuscula
             long prevIdxAdrs = -1;
 
