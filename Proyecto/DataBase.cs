@@ -563,6 +563,7 @@ namespace Proyecto {
             if (dg.DialogResult == DialogResult.OK) {
                 if (AddEntity(dg.name)) {
                     UpdateEntityTable();
+                    index.Clear();
                     MessageBox.Show("Entity added", "Success");
                     WriteDictionary();
                 }
@@ -847,12 +848,10 @@ namespace Proyecto {
                 long rAnt = -1, rIndex = -1;
                 if (SearchRegistry(rd.output[0], ref rIndex, ref rAnt, true)) {
                     DeleteRegister(rIndex, rAnt);
-                //}
-                //if (DeleteRegister(rd.output, ref prevRegAdrs) != -1) {
                     UpdateEntityTable();
                     UpdateRegisterTable();
                     UpdateAttribTable(comboBoxReg.Text);
-                    WriteRegisterFile(comboBoxReg.Text);
+                    //WriteRegisterFile(comboBoxReg.Text);
                     WriteDictionary(); // optimizar
                     if (key.PK || key.FK) {
                         if (key.PK) {
@@ -875,9 +874,9 @@ namespace Proyecto {
             mainFKTable.Columns.Clear();
             secondFKTable.Columns.Clear();
 
-            var cl1 = new DataGridViewTextBoxColumn { Width = 60, Resizable = DataGridViewTriState.False };
-            cl1.HeaderText = key.PKIsChar ? "Character" : "Number";
-            cl1.Name = key.PKIsChar ? "Character" : "Number";
+            var cl1 = new DataGridViewTextBoxColumn { Width = 80 };
+            cl1.HeaderText = "Foreign Key";
+            cl1.Name = "Foreign Key";
 
             mainFKTable.Columns.Add(cl1);
 
@@ -921,11 +920,10 @@ namespace Proyecto {
             secondPKTable.Columns.Clear();
             // Recorre todos los atributos, y los agrega como columnas
             var cl1 = new DataGridViewTextBoxColumn {
-                Width = 60,
-                Resizable = DataGridViewTriState.False
+                Width = 80
             };
-            cl1.HeaderText = key.PKIsChar ? "Character" : "Number";
-            cl1.Name = key.PKIsChar ? "Character" : "Number";
+            cl1.HeaderText = "Primary Key";
+            cl1.Name = "Primary Key";
             
             mainPKTable.Columns.Add(cl1);
             
@@ -1060,9 +1058,15 @@ namespace Proyecto {
             secondFKTable.Rows.Clear();
             long adrs = -1;
             for (int i = 0; i < 50; i++) {
-                string name = Encoding.UTF8.GetString(indexPrint, key.FKAdrsOnFile + (i * (key.FKSize + 8)), key.FKSize);
+                if (key.FKIsChar) {
+                    string name = Encoding.UTF8.GetString(indexPrint, key.FKAdrsOnFile + (i * (key.FKSize + 8)), key.FKSize);
+                    mainFKTable.Rows[i].Cells[0].Value = name;
+                }
+                else {
+                    int name = BitConverter.ToInt32(indexPrint, key.FKAdrsOnFile + (i * (key.FKSize + 8)));
+                    mainFKTable.Rows[i].Cells[0].Value = name;
+                }
                 adrs = BitConverter.ToInt64(indexPrint, key.FKAdrsOnFile + (i * (key.FKSize + 8)) + key.FKSize);
-                mainFKTable.Rows[i].Cells[0].Value = name;
                 mainFKTable.Rows[i].Cells[1].Value = adrs;
             }
             adrs = BitConverter.ToInt64(indexPrint, key.FKAdrsOnFile + (pageFK * (key.FKSize + 8)) + key.FKSize);

@@ -221,7 +221,7 @@
             // pageFKNumber
             // 
             this.pageFKNumber.AutoSize = true;
-            this.pageFKNumber.Location = new System.Drawing.Point(413, 22);
+            this.pageFKNumber.Location = new System.Drawing.Point(478, 22);
             this.pageFKNumber.Name = "pageFKNumber";
             this.pageFKNumber.Size = new System.Drawing.Size(19, 13);
             this.pageFKNumber.TabIndex = 23;
@@ -273,9 +273,9 @@
             // secondFKTable
             // 
             this.secondFKTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.secondFKTable.Location = new System.Drawing.Point(388, 38);
+            this.secondFKTable.Location = new System.Drawing.Point(453, 38);
             this.secondFKTable.Name = "secondFKTable";
-            this.secondFKTable.Size = new System.Drawing.Size(273, 325);
+            this.secondFKTable.Size = new System.Drawing.Size(156, 325);
             this.secondFKTable.TabIndex = 16;
             // 
             // mainFKTable
@@ -283,13 +283,13 @@
             this.mainFKTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.mainFKTable.Location = new System.Drawing.Point(176, 38);
             this.mainFKTable.Name = "mainFKTable";
-            this.mainFKTable.Size = new System.Drawing.Size(185, 325);
+            this.mainFKTable.Size = new System.Drawing.Size(256, 325);
             this.mainFKTable.TabIndex = 17;
             // 
             // label17
             // 
             this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(385, 22);
+            this.label17.Location = new System.Drawing.Point(450, 22);
             this.label17.Name = "label17";
             this.label17.Size = new System.Drawing.Size(32, 13);
             this.label17.TabIndex = 14;
@@ -300,9 +300,9 @@
             this.label15.AutoSize = true;
             this.label15.Location = new System.Drawing.Point(173, 22);
             this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(62, 13);
+            this.label15.Size = new System.Drawing.Size(49, 13);
             this.label15.TabIndex = 15;
-            this.label15.Text = "Foreign key";
+            this.label15.Text = "Main List";
             // 
             // tabPage4
             // 
@@ -369,7 +369,7 @@
             // pagePKNumber
             // 
             this.pagePKNumber.AutoSize = true;
-            this.pagePKNumber.Location = new System.Drawing.Point(414, 22);
+            this.pagePKNumber.Location = new System.Drawing.Point(446, 22);
             this.pagePKNumber.Name = "pagePKNumber";
             this.pagePKNumber.Size = new System.Drawing.Size(13, 13);
             this.pagePKNumber.TabIndex = 14;
@@ -412,7 +412,7 @@
             // secondPKTable
             // 
             this.secondPKTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.secondPKTable.Location = new System.Drawing.Point(388, 38);
+            this.secondPKTable.Location = new System.Drawing.Point(420, 38);
             this.secondPKTable.Name = "secondPKTable";
             this.secondPKTable.Size = new System.Drawing.Size(273, 325);
             this.secondPKTable.TabIndex = 10;
@@ -422,13 +422,13 @@
             this.mainPKTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.mainPKTable.Location = new System.Drawing.Point(176, 38);
             this.mainPKTable.Name = "mainPKTable";
-            this.mainPKTable.Size = new System.Drawing.Size(185, 325);
+            this.mainPKTable.Size = new System.Drawing.Size(221, 325);
             this.mainPKTable.TabIndex = 10;
             // 
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(385, 22);
+            this.label9.Location = new System.Drawing.Point(417, 22);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(32, 13);
             this.label9.TabIndex = 9;
@@ -439,9 +439,9 @@
             this.label8.AutoSize = true;
             this.label8.Location = new System.Drawing.Point(173, 22);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(61, 13);
+            this.label8.Size = new System.Drawing.Size(49, 13);
             this.label8.TabIndex = 9;
-            this.label8.Text = "Primary key";
+            this.label8.Text = "Main List";
             // 
             // tabPage3
             // 

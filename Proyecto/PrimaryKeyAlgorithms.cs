@@ -55,9 +55,6 @@ namespace Proyecto {
                     ShiftPKDown(idxAdrs, blockAdrs);
                 }
 
-                // Buscar el registro anterior, usando el bloque anterior si existe
-                //prevIdxAdrs = GetPrevIdxAdrs(idxAdrs, blockAdrs, prevBlock);
-
                 // Inserta solo la clave del indice primario
                 InsertHalfKey(keyName, idxAdrs);
                 return true;
@@ -163,55 +160,42 @@ namespace Proyecto {
 
         // Mueve una lista de 100 indices hacia abajo comenzando del índice dado
         private void ShiftPKDown(long indAux, long blockDir) {
-
+     
             if (key.PKIsChar) {
-                string value = Encoding.UTF8.GetString(index.ToArray(), (int)indAux, key.PKSize).Replace("~", "");
+                string value = Encoding.UTF8.GetString(index.ToArray(), (int)indAux, key.PKSize).Replace("~", "").TrimEnd('\0');
                 // Si el valor es vacio, es porque va a insertar en ese lugar
-                if (value.Any(x => char.IsLetter(x))) {
+                if (value == "") {
                     return;
-                }
-                // Si el valor no es vacio, es porque el indice va en la siguiente posicion
-                else {
-                    index.RemoveRange((int)blockDir + (key.PKSize + 8) * 99, key.PKSize + 8);
-                    index.InsertRange((int)indAux, new byte[key.PKSize + 8]);
-                }
+                }            
             }
             else {
                 int value = BitConverter.ToInt32(index.ToArray(), (int)indAux);
                 if (value == -1) {
                     return;
                 }
-                else {
-                    index.RemoveRange((int)blockDir + (key.PKSize + 8) * 99, key.PKSize + 8);
-                    index.InsertRange((int)indAux, new byte[key.PKSize + 8]);
-                }
             }
+            index.RemoveRange((int)blockDir + (key.PKSize + 8) * 99, key.PKSize + 8);
+            index.InsertRange((int)indAux, new byte[key.PKSize + 8]);
         }
 
         // Mueve una lista de 100 indices hacia arriba comenzando del índice dado, el indice se elimina
         private void ShiftPKUp(long indAux, long blockDir) {
             if (key.PKIsChar) {
-                string value = Encoding.UTF8.GetString(index.ToArray(), (int)indAux, key.PKSize).Replace("~", "");
+                string value = Encoding.UTF8.GetString(index.ToArray(), (int)indAux, key.PKSize).Replace("~", "").TrimEnd('\0');
                 // Si el valor es vacio, es porque va a insertar en ese lugar, no hace nada
-                if (value.Any(x => char.IsLetter(x))) {
+                if (value == "") {
                     return;
                 }
                 // Si el valor no es vacio, es porque el indice va en la siguiente posicion
-                else {
-                    index.InsertRange((int)blockDir + (key.PKSize + 8) * 99, new byte[key.PKSize + 8]);
-                    index.RemoveRange((int)indAux, key.PKSize + 8);
-                }
             }
             else {
                 int value = BitConverter.ToInt32(index.ToArray(), (int)indAux);
                 if (value == -1) {
                     return;
                 }
-                else {
-                    index.InsertRange((int)blockDir + (key.PKSize + 8) * 99, new byte[key.PKSize + 8]);
-                    index.RemoveRange((int)indAux, key.PKSize + 8);
-                }
             }
+            index.InsertRange((int)blockDir + (key.PKSize + 8) * 99, new byte[key.PKSize + 8]);
+            index.RemoveRange((int)indAux, key.PKSize + 8);
         }
 
         /* Crea una sblista lista de 100 y la agrega al final del archivo de indice*/
