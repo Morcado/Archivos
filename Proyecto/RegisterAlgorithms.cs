@@ -15,41 +15,53 @@ namespace Proyecto {
             int keyNum;
             /* Recorre todos los registros utilizando la clave de busqueda
              * hasta que el siguiente0 indice es -1 */
-            if (rIndex != -1 && dataR.Length > 0) {
-                if (key.searchKeyIsChar) {
-                    keyName = Encoding.UTF8.GetString(dataR, (int)rIndex + 8 + key.searchKeyPos, key.searchKeySize).Replace("~", "");
-                    while (String.Compare(name, keyName) == 1 && rIndex != -1) {
-                        rAnt = rIndex;
-                        rIndex = BitConverter.ToInt64(dataR, (int)rIndex + 8 + registerSize);
-                        if (rIndex != -1) {
-                            keyName = Encoding.UTF8.GetString(dataR, (int)rIndex + 8 + key.searchKeyPos, key.searchKeySize).Replace("~", "");
+            if (key.searchKey) {
+                if (rIndex != -1 && dataR.Length > 0) {
+                    if (key.searchKeyIsChar) {
+                        keyName = Encoding.UTF8.GetString(dataR, (int)rIndex + 8 + key.searchKeyPos, key.searchKeySize).Replace("~", "");
+                        while (String.Compare(name, keyName) == 1 && rIndex != -1) {
+                            rAnt = rIndex;
+                            rIndex = BitConverter.ToInt64(dataR, (int)rIndex + 8 + registerSize);
+                            if (rIndex != -1) {
+                                keyName = Encoding.UTF8.GetString(dataR, (int)rIndex + 8 + key.searchKeyPos, key.searchKeySize).Replace("~", "");
+                            }
                         }
-                    }
-                    if (delete) {
-                        if (rIndex == -1) {
-                            return false;
+                        if (delete) {
+                            if (rIndex == -1) {
+                                return false;
+                            }
+                            return true;
                         }
-                        return true;
+                        return false;
                     }
-                    return false;
+                    else {
+                        int name2 = Convert.ToInt32(name);
+                        keyNum = BitConverter.ToInt32(dataR, (int)rIndex + 8);
+                        while (keyNum < name2 && rIndex != -1) {
+                            rAnt = rIndex;
+                            rIndex = BitConverter.ToInt64(dataR, (int)rIndex + registerSize + 8);
+                            if (rIndex != -1) {
+                                keyNum = BitConverter.ToInt32(dataR, (int)rIndex + 8);
+                            }
+                        }
+                        if (delete) {
+                            return true;
+                        }
+                        return false;
+                    }
                 }
-                else {
-                    int name2 = Convert.ToInt32(name);
-                    keyNum = BitConverter.ToInt32(dataR, (int)rIndex + 8);
-                    while (keyNum < name2 && rIndex != -1) {
-                        rAnt = rIndex;
-                        rIndex = BitConverter.ToInt64(dataR, (int)rIndex + registerSize + 8);
-                        if (rIndex != -1) {
-                            keyNum = BitConverter.ToInt32(dataR, (int)rIndex + 8);
-                        }
-                    }
-                    if (delete) {
-                        return true;
-                    }
-                    return false;
+                rIndex = -1;
+            }
+            else {
+                long sIndex = Convert.ToInt64(name);
+                while (rIndex < sIndex) {
+                    rAnt = rIndex;
+                    rIndex = BitConverter.ToInt64(register.ToArray(), (int)rIndex + registerSize + 8);
+                }
+                if (sIndex == rIndex) {
+                    return true;
                 }
             }
-            rIndex = -1;
             return false;
         }
 
@@ -185,8 +197,11 @@ namespace Proyecto {
                     else {
                         if (register.Count >= 8 + registerSize + 8) {
                             rAnt = register.Count - 8 - registerSize - 8;
+                            newAdrs = InsertRegister(output, rAnt);
                         }
-                        newAdrs = InsertRegister(output, -1);
+                        else {
+                            newAdrs = InsertRegister(output, -1);
+                        }
                     }
                
                     //long newAdrs = InsertRegister(output, rAnt);

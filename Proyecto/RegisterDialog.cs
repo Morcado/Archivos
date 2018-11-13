@@ -10,60 +10,56 @@ using System.Windows.Forms;
 namespace Proyecto {
     public partial class RegisterDialog : Form {
         private int cant;
-        private int modify;
+        private bool allAttributes;
         public List<string> output;
         /* Ubica cada text box para pedir los datos de todos los atributos de la entidad*/
-        public RegisterDialog(List<string> inputs, int keyToDelete, int modify) {
+        public RegisterDialog(List<string> inputs, int keyToDelete, bool allAttributes, bool searchKey, string text) {
             int controlPos = keyToDelete == -1 ? 0 : keyToDelete;
             InitializeComponent();
-            this.modify = modify;
-            switch (modify) {
-                case 0:
-                    Text = "Add register";
-                    break;
-                case 1:
-                    Text = "Modify register";
-                    break;
-                case 2:
-                    Text = "Delete register";
-                    break;
-                default:
-                    break;
-            }
+            this.allAttributes = allAttributes;
+            Text = text;
+
             cant = inputs.Count;
             int y = 12;
-            for (int i = 0; i < cant; i++) {
-                TextBox a = new TextBox();
-                Label b = new Label();
-                b.Text = inputs[i];
-                b.Location = new Point(20, y + 3);
-                a.Name = i.ToString();
-                a.Location = new Point(145, y);
-                if (modify == 0 || modify == 1) {
+
+            if (allAttributes) {
+                for (int i = 0; i < cant; i++) {
+                    TextBox a = new TextBox {
+                        Name = i.ToString(),
+                        Location = new Point(145, y)
+                    };
+                    Label b = new Label {
+                        Text = inputs[i],
+                        Location = new Point(20, y + 3)
+                    };
                     Controls.Add(a);
                     Controls.Add(b);
                     y += 26;
                 }
-                else {
-                    if (controlPos == i) {
-                        //a.Location = new Point(145, y);
-                        //b.Location = new Point(20, y + 3);
-                        a.Name = "key";
-                        Controls.Add(a);
-                        Controls.Add(b);
-                        y += 26;
-                    }
-                }
             }
+            else {
+                TextBox a = new TextBox {
+                    Name = "key",
+                    Location = new Point(145, y)
+                };
+                Label b = new Label {
+                    Location = new Point(20, y + 3)
+                };
+                b.Text = searchKey ? inputs[keyToDelete] : "Register address";
+                Controls.Add(a);
+                Controls.Add(b);
+                y += 26;
+            }
+
             button1.Location = new Point(168, y);
             button2.Location = new Point(75, y);
             Size = new Size(280, y + 26 + 20 + 33);
         }
 
-        private void button1_Click(object sender, EventArgs e) {
+        private void Button1_Click(object sender, EventArgs e) {
             DialogResult = DialogResult.OK;
             output = new List<string>();
-            if (modify == 0 || modify == 1) {
+            if (allAttributes) {
                 for (int i = 0; i < cant; i++) {
                     output.Add(((TextBox)Controls[i.ToString()]).Text);
                 }
@@ -74,6 +70,6 @@ namespace Proyecto {
             Close();
         }   
 
-        private void button2_Click(object sender, EventArgs e) => Close();
+        private void Button2_Click(object sender, EventArgs e) => Close();
     }
 }

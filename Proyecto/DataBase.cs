@@ -322,8 +322,8 @@ namespace Proyecto {
             }
             if (File.Exists(Application.StartupPath + "\\examples\\" + comboBoxReg.Text + ".dat")) {
                 ReadRegisterFile(comboBoxReg.Text);
-                buttonReg1.Enabled = false;
-                buttonReg2.Enabled = true;
+                buttonAtt4.Enabled = false;
+                buttonAtt5.Enabled = true;
                 buttonReg3.Enabled = true;
                 buttonReg4.Enabled = true;
                 buttonReg5.Enabled = true;
@@ -334,8 +334,8 @@ namespace Proyecto {
             // Si existe un archivo de indice para el registro, lo lee y actualiza la tabla
             else {
                 registerTable.Columns.Clear();
-                buttonReg1.Enabled = true;
-                buttonReg2.Enabled = false;
+                buttonAtt4.Enabled = true;
+                buttonAtt5.Enabled = false;
                 buttonReg3.Enabled = false;
                 buttonReg4.Enabled = false;
                 buttonReg5.Enabled = false;
@@ -690,8 +690,8 @@ namespace Proyecto {
             try {
                 bw = new BinaryWriter(new FileStream(Application.StartupPath + "\\examples\\" + comboBoxReg.Text + ".dat", FileMode.Create));
                 bw.Close();
-                buttonReg1.Enabled = false;
-                buttonReg2.Enabled = true;
+                buttonAtt4.Enabled = false;
+                buttonAtt5.Enabled = true;
                 buttonReg3.Enabled = true;
                 buttonReg5.Enabled = true;
                 label5.Text = comboBoxReg.Text;
@@ -711,8 +711,8 @@ namespace Proyecto {
             try {
                 File.Delete(Application.StartupPath + "\\examples\\" + comboBoxReg.Text + ".dat");
                 File.Delete(Application.StartupPath + "\\examples\\" + comboBoxReg.Text + ".idx");
-                buttonReg1.Enabled = true;
-                buttonReg2.Enabled = false;
+                buttonAtt4.Enabled = true;
+                buttonAtt5.Enabled = false;
                 buttonReg3.Enabled = false;
                 buttonReg5.Enabled = false;
                 label5.Text = "Register";
@@ -746,11 +746,11 @@ namespace Proyecto {
 
         // Modifica un registro buscando su clave de búsqueda, y si no la tiene busca por defecto la primera
         private void BtnModifyRegister(object sender, EventArgs e) {
-            RegisterDialog rd = new RegisterDialog(inputs, key.searchKeyAttribIndex, 2);
+            RegisterDialog rd = new RegisterDialog(inputs, key.searchKeyAttribIndex, false, key.searchKey, "Modify register");
             if (rd.ShowDialog() == DialogResult.OK) {
                 long rIndex = -1, rAnt = -1;
                 if (SearchRegistry(rd.output[0], ref rIndex, ref rAnt, true)) {
-                    RegisterDialog rg2 = new RegisterDialog(inputs, -1, 1);
+                    RegisterDialog rg2 = new RegisterDialog(inputs, -1, true, key.searchKey, "Modify Register");
                     if (rg2.ShowDialog() == DialogResult.OK) {
                         if (ModifyRegister(rd.output, rg2.output, rIndex, rAnt)) {
                             UpdateRegisterTable();
@@ -782,7 +782,7 @@ namespace Proyecto {
 
             /* Muestra el diálogo para pedir cada dato de la entidad
              * El dialogo obtiene el nombre de la clave de busqueda de algun registro si esta existe */
-            RegisterDialog rd = new RegisterDialog(inputs, -1, 0);
+            RegisterDialog rd = new RegisterDialog(inputs, -1, true, key.searchKey, "Add register");
             if (rd.ShowDialog() == DialogResult.OK) {
                 /* Guarda los resultados en una lista de string generica
                  * Los resultados despues son convertidos a su tipo de dato especificado
@@ -813,6 +813,7 @@ namespace Proyecto {
                     }
                 }
 
+
                 resp = AddRegister(forms);
                 if (resp) {
                     /* Optimizar */
@@ -842,7 +843,7 @@ namespace Proyecto {
         // Borra el registro proporcionando la clave de búsqueda si la tiene, si no la tiene
         // se ingresa el primer atributo del índice
         private void BtnDeleteRegister(object sender, EventArgs e) {
-            RegisterDialog rd = new RegisterDialog(inputs, key.searchKeyAttribIndex, 2);
+            RegisterDialog rd = new RegisterDialog(inputs, key.searchKeyAttribIndex, false, key.searchKey, "Delete register");
             if (rd.ShowDialog() == DialogResult.OK) {
                 List<string> change = rd.output;
                 long rAnt = -1, rIndex = -1;
@@ -851,7 +852,7 @@ namespace Proyecto {
                     UpdateEntityTable();
                     UpdateRegisterTable();
                     UpdateAttribTable(comboBoxReg.Text);
-                    //WriteRegisterFile(comboBoxReg.Text);
+                    WriteRegisterFile(comboBoxReg.Text);
                     WriteDictionary(); // optimizar
                     if (key.PK || key.FK) {
                         if (key.PK) {
@@ -1069,16 +1070,13 @@ namespace Proyecto {
                 adrs = BitConverter.ToInt64(indexPrint, key.FKAdrsOnFile + (i * (key.FKSize + 8)) + key.FKSize);
                 mainFKTable.Rows[i].Cells[1].Value = adrs;
             }
-            adrs = BitConverter.ToInt64(indexPrint, key.FKAdrsOnFile + (pageFK * (key.FKSize + 8)) + key.FKSize);
+            adrs = BitConverter.ToInt64(indexPrint, key.FKAdrsOnFile + ((pageFK - 1)* (key.FKSize + 8)) + key.FKSize);
             if (adrs != -1) {
 
-                string scode = "";
                 long regAdrs = BitConverter.ToInt64(indexPrint, (int)adrs);
                 do {
-                    scode = Encoding.UTF8.GetString(indexPrint, (int)adrs, 8).Replace("~", "");
-                    secondFKTable.Rows.Add(scode, regAdrs);
-
-                    adrs += +8;
+                    secondFKTable.Rows.Add(regAdrs);
+                    adrs += 8;
                     regAdrs = BitConverter.ToInt64(indexPrint, (int)adrs);
                 } while (regAdrs != -1);
             }
@@ -1121,7 +1119,7 @@ namespace Proyecto {
                     long regAdrs = BitConverter.ToInt64(indexPrint, (int)adrs);
                     do {
                         secondFKTable.Rows.Add(regAdrs);
-                        adrs += + 8;
+                        adrs += 8;
                         regAdrs = BitConverter.ToInt64(indexPrint, (int)adrs);
                     } while (regAdrs != -1);
                 }

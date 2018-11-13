@@ -63,8 +63,6 @@
             this.textBoxReg = new System.Windows.Forms.TextBox();
             this.buttonReg5 = new System.Windows.Forms.Button();
             this.buttonReg3 = new System.Windows.Forms.Button();
-            this.buttonReg2 = new System.Windows.Forms.Button();
-            this.buttonReg1 = new System.Windows.Forms.Button();
             this.registerTable = new System.Windows.Forms.DataGridView();
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
@@ -86,6 +84,9 @@
             this.buttonEnt1 = new System.Windows.Forms.Button();
             this.entityTable = new System.Windows.Forms.DataGridView();
             this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.buttonAtt4 = new System.Windows.Forms.Button();
+            this.buttonAtt5 = new System.Windows.Forms.Button();
+            this.label13 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             this.tabPage5.SuspendLayout();
@@ -450,8 +451,6 @@
             this.tabPage3.Controls.Add(this.textBoxReg);
             this.tabPage3.Controls.Add(this.buttonReg5);
             this.tabPage3.Controls.Add(this.buttonReg3);
-            this.tabPage3.Controls.Add(this.buttonReg2);
-            this.tabPage3.Controls.Add(this.buttonReg1);
             this.tabPage3.Controls.Add(this.registerTable);
             this.tabPage3.Controls.Add(this.label5);
             this.tabPage3.Controls.Add(this.label6);
@@ -467,7 +466,7 @@
             // buttonReg4
             // 
             this.buttonReg4.Enabled = false;
-            this.buttonReg4.Location = new System.Drawing.Point(21, 178);
+            this.buttonReg4.Location = new System.Drawing.Point(21, 147);
             this.buttonReg4.Name = "buttonReg4";
             this.buttonReg4.Size = new System.Drawing.Size(130, 23);
             this.buttonReg4.TabIndex = 14;
@@ -478,7 +477,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(20, 126);
+            this.label7.Location = new System.Drawing.Point(20, 95);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(63, 13);
             this.label7.TabIndex = 13;
@@ -486,7 +485,7 @@
             // 
             // textBoxReg
             // 
-            this.textBoxReg.Location = new System.Drawing.Point(100, 123);
+            this.textBoxReg.Location = new System.Drawing.Point(100, 92);
             this.textBoxReg.Name = "textBoxReg";
             this.textBoxReg.ReadOnly = true;
             this.textBoxReg.Size = new System.Drawing.Size(51, 20);
@@ -496,7 +495,7 @@
             // buttonReg5
             // 
             this.buttonReg5.Enabled = false;
-            this.buttonReg5.Location = new System.Drawing.Point(21, 207);
+            this.buttonReg5.Location = new System.Drawing.Point(21, 176);
             this.buttonReg5.Name = "buttonReg5";
             this.buttonReg5.Size = new System.Drawing.Size(130, 23);
             this.buttonReg5.TabIndex = 11;
@@ -507,35 +506,13 @@
             // buttonReg3
             // 
             this.buttonReg3.Enabled = false;
-            this.buttonReg3.Location = new System.Drawing.Point(21, 149);
+            this.buttonReg3.Location = new System.Drawing.Point(21, 118);
             this.buttonReg3.Name = "buttonReg3";
             this.buttonReg3.Size = new System.Drawing.Size(130, 23);
             this.buttonReg3.TabIndex = 11;
             this.buttonReg3.Text = "Insert register";
             this.buttonReg3.UseVisualStyleBackColor = true;
             this.buttonReg3.Click += new System.EventHandler(this.BtnAddRegister);
-            // 
-            // buttonReg2
-            // 
-            this.buttonReg2.Enabled = false;
-            this.buttonReg2.Location = new System.Drawing.Point(21, 94);
-            this.buttonReg2.Name = "buttonReg2";
-            this.buttonReg2.Size = new System.Drawing.Size(130, 23);
-            this.buttonReg2.TabIndex = 9;
-            this.buttonReg2.Text = "Delete Register File";
-            this.buttonReg2.UseVisualStyleBackColor = true;
-            this.buttonReg2.Click += new System.EventHandler(this.BtnDeleteRegisterFile);
-            // 
-            // buttonReg1
-            // 
-            this.buttonReg1.Enabled = false;
-            this.buttonReg1.Location = new System.Drawing.Point(21, 65);
-            this.buttonReg1.Name = "buttonReg1";
-            this.buttonReg1.Size = new System.Drawing.Size(130, 23);
-            this.buttonReg1.TabIndex = 9;
-            this.buttonReg1.Text = "Create Register File";
-            this.buttonReg1.UseVisualStyleBackColor = true;
-            this.buttonReg1.Click += new System.EventHandler(this.BtnCreateRegisterFile);
             // 
             // registerTable
             // 
@@ -576,6 +553,9 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.label13);
+            this.tabPage1.Controls.Add(this.buttonAtt5);
+            this.tabPage1.Controls.Add(this.buttonAtt4);
             this.tabPage1.Controls.Add(this.attributeTable);
             this.tabPage1.Controls.Add(this.buttonAtt2);
             this.tabPage1.Controls.Add(this.buttonAtt3);
@@ -759,6 +739,33 @@
             this.tabControl1.Size = new System.Drawing.Size(800, 411);
             this.tabControl1.TabIndex = 4;
             // 
+            // buttonAtt4
+            // 
+            this.buttonAtt4.Location = new System.Drawing.Point(21, 192);
+            this.buttonAtt4.Name = "buttonAtt4";
+            this.buttonAtt4.Size = new System.Drawing.Size(130, 23);
+            this.buttonAtt4.TabIndex = 5;
+            this.buttonAtt4.Text = "Create register file";
+            this.buttonAtt4.UseVisualStyleBackColor = true;
+            // 
+            // buttonAtt5
+            // 
+            this.buttonAtt5.Location = new System.Drawing.Point(21, 221);
+            this.buttonAtt5.Name = "buttonAtt5";
+            this.buttonAtt5.Size = new System.Drawing.Size(130, 23);
+            this.buttonAtt5.TabIndex = 6;
+            this.buttonAtt5.Text = "Delete register file";
+            this.buttonAtt5.UseVisualStyleBackColor = true;
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(21, 173);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(46, 13);
+            this.label13.TabIndex = 7;
+            this.label13.Text = "Register";
+            // 
             // DataBase
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -831,8 +838,6 @@
         private System.Windows.Forms.TextBox textBoxReg;
         private System.Windows.Forms.Button buttonReg5;
         private System.Windows.Forms.Button buttonReg3;
-        private System.Windows.Forms.Button buttonReg2;
-        private System.Windows.Forms.Button buttonReg1;
         private System.Windows.Forms.DataGridView registerTable;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
@@ -861,6 +866,9 @@
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.NumericUpDown numericUpDown2;
         private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Button buttonAtt5;
+        private System.Windows.Forms.Button buttonAtt4;
     }
 }
 
