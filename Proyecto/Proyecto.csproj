@@ -47,6 +47,9 @@
     <Compile Include="ForeignKeyAlgorithms.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="HashAlgorithms.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="NewAttributeDialog.cs">
       <SubType>Form</SubType>
     </Compile>
