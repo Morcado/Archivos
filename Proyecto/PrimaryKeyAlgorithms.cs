@@ -115,7 +115,7 @@ namespace Proyecto {
 						if (key.PKIsChar) {
 							// Busca en la sublista por la clave de índice
 							for (int j = 0; j < 100; j++, prevIdxAdrs = idxAdrs, idxAdrs += key.PKSize + 8) {
-								var s = Encoding.UTF8.GetString(indexP, (int)idxAdrs, key.PKSize);
+								string s = Encoding.UTF8.GetString(indexP, (int)idxAdrs, key.PKSize);
 								// Si no está, entonces esta vacío
 								if (!s.Any(x => Char.IsLetter(x))) {
 									return false;
@@ -132,7 +132,7 @@ namespace Proyecto {
 						}
 						else {
 							for (int j = 0; j < 100; j++, prevIdxAdrs = idxAdrs, idxAdrs += key.PKSize + 8) {
-								var s = BitConverter.ToInt32(indexP, (int)idxAdrs);
+								int s = BitConverter.ToInt32(indexP, (int)idxAdrs);
 								if (s == -1) {
 									return false;
 								}

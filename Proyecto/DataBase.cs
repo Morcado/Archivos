@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -62,11 +63,12 @@ namespace Proyecto {
 
 		/* Variables auxiliares de los registros */
 		private int registerSize;
+		private int prefix;
 
 		public DataBase() {
 			InitializeComponent();
+			prefix = 0;
 			registerSize = 0;
-
 			key.searchKeyPos = -1;
 			key.searchKey = false;
 			key.PK = false;
@@ -76,6 +78,12 @@ namespace Proyecto {
 			data = new List<byte>();
 			register = new List<byte>();
 			index = new List<byte>();
+
+			panel1.AutoScroll = false;
+			panel1.HorizontalScroll.Enabled = false;
+			panel1.HorizontalScroll.Visible = false;
+			panel1.HorizontalScroll.Maximum = 0;
+			panel1.AutoScroll = true;
 		}
 
 		#region New, Open, Exit
@@ -155,6 +163,9 @@ namespace Proyecto {
 			}
 		}
 
+
+		/* Carga un archivo separado por comas y crea una base de datos con la entidad alumno y 
+		 * atributo de clave y nombre, se puede modficar el tipo de indices que tiene y la organizacion*/
 		private void OpenCSV(object sender, EventArgs e) {
 			//MessageBox.Show("In progress...");
 			OpenFileDialog open = new OpenFileDialog {
@@ -272,10 +283,6 @@ namespace Proyecto {
 					WriteIndexFile(open.SafeFileName);
 				}
 			}
-			//if (open.ShowDialog() == DialogResult.OK) {
-			//   var Lines = File.ReadLines(open.FileName).Select(a => a.Split(';'));
-			//var CSV = from line in Lines select (line.Split(',')).ToArray();
-			//}
 		}
 
 		// Cierra la aplicación
@@ -458,6 +465,12 @@ namespace Proyecto {
 					key.FKAdrsOnFile = BitConverter.ToInt32(data.ToArray(), (int)key.attribFKIndexAdrs + 48);
 					InitializeFKIndexTable();
 					UpdateMainFKTable();
+				}
+				if (key.Hash) {
+					key.HashAdrsOnFile = 0;
+					InitializeHashTable();
+					UpdateHashTable();
+					UpdateHashBoxes();
 				}
 			}
 			else {
@@ -944,6 +957,7 @@ namespace Proyecto {
 						}
 						if (key.Hash) {
 							UpdateHashTable();
+							UpdateHashBoxes();
 						}
 						WriteIndexFile(comboBoxAtt.Text);
 					}
@@ -1270,39 +1284,120 @@ namespace Proyecto {
 			UpdateSecondPKTable();
 		}
 
+		/* Crea la tabla de hash, sin agregar valores inicializandolo en -1 */
 		private void InitializeHashTable() {
 			hashTable.Columns.Clear();
-			var cl1 = new DataGridViewTextBoxColumn {
-				Width = 80
-			};
+			DataGridViewTextBoxColumn cl1 = new DataGridViewTextBoxColumn { Width = 80 };
 			cl1.HeaderText = "Bits";
 			cl1.Name = "Bits";
 
 			hashTable.Columns.Add(cl1);
 
-			var cl2 = new DataGridViewTextBoxColumn {
-				Width = 80
-			};
-			cl2.HeaderText = "Register Address";
-			cl2.Name = "Register Address";
+			DataGridViewTextBoxColumn cl2 = new DataGridViewTextBoxColumn { Width = 80 };
+			cl2.HeaderText = "Box Address";
+			cl2.Name = "Box Address";
 
 			hashTable.Columns.Add(cl2);
 
 			for (int i = 0; i < 64; i++) {
 				hashTable.Rows.Add(-1, -1);
 			}
+
+			prefix = BitConverter.ToInt32(index.ToArray(), key.HashAdrsOnFile);
 		}
 
+		/* Actualiza todas las cajas de la hash dinamica, mostrando las que fueron creadas. Las muestra dinámicamente
+		 * en un groupbox, y son varios datagrid */ 
+		private void UpdateHashBoxes() {
+			byte[] indexPrint = index.ToArray();
+			long adrs = key.HashAdrsOnFile + 4, prevBxAdrs = -1;
+			int yStart = 10;
+			panel1.Controls.Clear();
+			for (int i = 0; i < Math.Pow(2, prefix); i++) {
+				long bxAdrs = BitConverter.ToInt64(indexPrint, (int)adrs + 64);
+				if (bxAdrs == prevBxAdrs) {
+					continue;
+				}
+
+				prevBxAdrs = bxAdrs;
+				if (bxAdrs != -1) {
+					Label l1 = new Label {
+						Text = bxAdrs.ToString(),
+						Location = new Point(200, yStart + 5),
+					};
+					TextBox tb = new TextBox {
+						ReadOnly = true,
+						Text = BitConverter.ToInt32(indexPrint, (int)bxAdrs).ToString(), // asignar un prefijo a cada uno
+						Location = new Point(10, yStart),
+						Width = 60,
+						TextAlign = HorizontalAlignment.Center
+					};
+					yStart += 20;
+					DataGridView dg = new DataGridView {
+						Location = new Point(10, yStart), //30
+						Name = "1",
+						Size = new Size(220, 150),
+						ColumnHeadersVisible = false,
+						AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells,
+						ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize,
+						Visible = true
+					};
+
+					DataGridViewTextBoxColumn cl1 = new DataGridViewTextBoxColumn { Width = 80 };
+					cl1.HeaderText = "Key";
+					cl1.Name = "Key";
+
+					dg.Columns.Add(cl1);
+
+					DataGridViewTextBoxColumn cl2 = new DataGridViewTextBoxColumn { Width = 80 };
+					cl2.HeaderText = "Register Address";
+					cl2.Name = "Register Address";
+
+					dg.Columns.Add(cl2);
+
+					yStart += 160;
+					//long datasAdrs = BitConverter.ToInt64(indexPrint, (int)adrs + 64);
+					bxAdrs += 4;
+					int data = BitConverter.ToInt32(indexPrint, (int)bxAdrs);
+					long regAdrs = BitConverter.ToInt32(indexPrint, (int)bxAdrs + 4);
+					int count = 0;
+					while (/*data != -1 &&*/ count < boxSize) { // *****sin count, imprimir dinamicamente*****
+						dg.Rows.Add(data, regAdrs);
+						count++;
+						if (count == boxSize) {
+							break;
+						}
+						bxAdrs += 12;
+						data = BitConverter.ToInt32(indexPrint, (int)bxAdrs);
+						regAdrs = BitConverter.ToInt32(indexPrint, (int)bxAdrs + 4);
+					}
+
+					panel1.Controls.Add(tb);
+					panel1.Controls.Add(dg);
+					panel1.Controls.Add(l1);
+					adrs += 72;
+				}
+			}
+		}
+
+		/* Actualiza la tabla principal de la tabla hash, muestra los bits y la direccion de la caja de cada bit */
 		private void UpdateHashTable() {
 			byte[] indexPrint = index.ToArray();
 			hashTable.Rows.Clear();
 			long adrs = key.HashAdrsOnFile + 4;
-			for (int i = 0; i < Math.Pow(2, key.Prefix); i++) {
-				int bit = BitConverter.ToInt32(indexPrint, (int)adrs);
-				long hashAdrs = BitConverter.ToInt64(indexPrint, (int)adrs + 4);
-				hashTable.Rows.Add(bit, adrs);
-				adrs += 4;
+			if (prefix == 0) {
+				long hashAdrs = BitConverter.ToInt64(indexPrint, (int)adrs + 64);
+				hashTable.Rows.Add("", hashAdrs);
 			}
+			else {
+				for (int i = 0; i < Math.Pow(2, prefix); i++) {
+					string bit = Encoding.UTF8.GetString(indexPrint, (int)adrs, prefix);
+					long hashAdrs = BitConverter.ToInt64(indexPrint, (int)adrs + 64);
+					hashTable.Rows.Add(bit, hashAdrs);
+					adrs += 72;
+				}
+			}
+			textBox1.Text = prefix.ToString();
 		}
 	}
 }

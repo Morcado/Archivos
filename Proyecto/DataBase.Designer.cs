@@ -91,7 +91,9 @@
 			this.entityTable = new System.Windows.Forms.DataGridView();
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.tabPage6 = new System.Windows.Forms.TabPage();
-			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.textBox1 = new System.Windows.Forms.TextBox();
+			this.container = new System.Windows.Forms.GroupBox();
+			this.panel1 = new System.Windows.Forms.Panel();
 			this.hashTable = new System.Windows.Forms.DataGridView();
 			this.menuStrip1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
@@ -117,6 +119,7 @@
 			((System.ComponentModel.ISupportInitialize)(this.entityTable)).BeginInit();
 			this.tabControl1.SuspendLayout();
 			this.tabPage6.SuspendLayout();
+			this.container.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.hashTable)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -145,33 +148,33 @@
 			// newToolStripMenuItem
 			// 
 			this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-			this.newToolStripMenuItem.Size = new System.Drawing.Size(127, 22);
+			this.newToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
 			this.newToolStripMenuItem.Text = "New";
 			this.newToolStripMenuItem.Click += new System.EventHandler(this.NewFile);
 			// 
 			// openToolStripMenuItem
 			// 
 			this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-			this.openToolStripMenuItem.Size = new System.Drawing.Size(127, 22);
+			this.openToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
 			this.openToolStripMenuItem.Text = "Open";
 			this.openToolStripMenuItem.Click += new System.EventHandler(this.OpenFile);
 			// 
 			// openCSVToolStripMenuItem
 			// 
 			this.openCSVToolStripMenuItem.Name = "openCSVToolStripMenuItem";
-			this.openCSVToolStripMenuItem.Size = new System.Drawing.Size(127, 22);
+			this.openCSVToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
 			this.openCSVToolStripMenuItem.Text = "Open CSV";
 			this.openCSVToolStripMenuItem.Click += new System.EventHandler(this.OpenCSV);
 			// 
 			// toolStripSeparator1
 			// 
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(124, 6);
+			this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
 			// 
 			// exitToolStripMenuItem
 			// 
 			this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-			this.exitToolStripMenuItem.Size = new System.Drawing.Size(127, 22);
+			this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
 			this.exitToolStripMenuItem.Text = "Exit";
 			this.exitToolStripMenuItem.Click += new System.EventHandler(this.ExitToolStripMenuItem_Click);
 			// 
@@ -813,7 +816,8 @@
 			// 
 			// tabPage6
 			// 
-			this.tabPage6.Controls.Add(this.groupBox1);
+			this.tabPage6.Controls.Add(this.textBox1);
+			this.tabPage6.Controls.Add(this.container);
 			this.tabPage6.Controls.Add(this.hashTable);
 			this.tabPage6.Location = new System.Drawing.Point(4, 22);
 			this.tabPage6.Name = "tabPage6";
@@ -823,21 +827,38 @@
 			this.tabPage6.Text = "Dynamic Hash";
 			this.tabPage6.UseVisualStyleBackColor = true;
 			// 
-			// groupBox1
+			// textBox1
 			// 
-			this.groupBox1.Location = new System.Drawing.Point(294, 33);
-			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Size = new System.Drawing.Size(239, 328);
-			this.groupBox1.TabIndex = 1;
-			this.groupBox1.TabStop = false;
-			this.groupBox1.Text = "Boxes";
+			this.textBox1.Location = new System.Drawing.Point(33, 39);
+			this.textBox1.Name = "textBox1";
+			this.textBox1.ReadOnly = true;
+			this.textBox1.Size = new System.Drawing.Size(80, 20);
+			this.textBox1.TabIndex = 2;
+			this.textBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			// 
+			// container
+			// 
+			this.container.Controls.Add(this.panel1);
+			this.container.Location = new System.Drawing.Point(294, 33);
+			this.container.Name = "container";
+			this.container.Size = new System.Drawing.Size(338, 323);
+			this.container.TabIndex = 1;
+			this.container.TabStop = false;
+			this.container.Text = "Boxes";
+			// 
+			// panel1
+			// 
+			this.panel1.Location = new System.Drawing.Point(6, 19);
+			this.panel1.Name = "panel1";
+			this.panel1.Size = new System.Drawing.Size(326, 298);
+			this.panel1.TabIndex = 0;
 			// 
 			// hashTable
 			// 
 			this.hashTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-			this.hashTable.Location = new System.Drawing.Point(33, 33);
+			this.hashTable.Location = new System.Drawing.Point(33, 59);
 			this.hashTable.Name = "hashTable";
-			this.hashTable.Size = new System.Drawing.Size(228, 314);
+			this.hashTable.Size = new System.Drawing.Size(228, 288);
 			this.hashTable.TabIndex = 0;
 			// 
 			// DataBase
@@ -885,6 +906,8 @@
 			((System.ComponentModel.ISupportInitialize)(this.entityTable)).EndInit();
 			this.tabControl1.ResumeLayout(false);
 			this.tabPage6.ResumeLayout(false);
+			this.tabPage6.PerformLayout();
+			this.container.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.hashTable)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
@@ -958,9 +981,11 @@
 		private System.Windows.Forms.GroupBox groupBox4;
 		private System.Windows.Forms.GroupBox groupBox3;
 		private System.Windows.Forms.GroupBox groupBox5;
-		private System.Windows.Forms.GroupBox groupBox1;
+		private System.Windows.Forms.GroupBox container;
 		private System.Windows.Forms.GroupBox groupBox6;
 		private System.Windows.Forms.GroupBox groupBox7;
+		private System.Windows.Forms.Panel panel1;
+		private System.Windows.Forms.TextBox textBox1;
 	}
 }
 

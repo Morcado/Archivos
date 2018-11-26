@@ -176,7 +176,7 @@ namespace Proyecto {
 		 * es primario o secundario, agrega el indice incluso si ya existe la clave de busqueda*/
 		private bool AddRegister(List<string> output) {
 			long rIndex = -1, rAnt = -1, newAdrs = -1;
-			long prevIdxAdrs = -1, idxAdrsPK = -1, blockAdrs = -1, idxAdrsFK = -1;
+			long prevIdxAdrs = -1, idxAdrsPK = -1, blockAdrs = -1, idxAdrsFK = -1, hsAdrs = -1;
 			bool resp = false, resp2 = false;
 			long currentRegAdrs = register.Count;
 
@@ -223,18 +223,20 @@ namespace Proyecto {
 			}
 			if (key.Hash) {
 				// Insertar con hash
-				resp = InsertHashKey(output[key.HashAtribListIndex]);
+				resp = InsertHashKey(output[key.HashAtribListIndex], ref hsAdrs);
 
 				if (key.searchKey) {
 					if (!SearchRegistry(output[key.searchKeyAttribIndex], ref rIndex, ref rAnt, false, false)) {
-						InsertRegister(output, rAnt);
-
+						newAdrs = InsertRegister(output, rAnt);
+						CompleteHash(hsAdrs, newAdrs);
+						//ReplaceBytes(index, hsAdrs + 4, rAnt);
 						return true;
 					}
 				}
 				else {
 					if (!SearchRegistry(output[key.searchKeyAttribIndex], ref rIndex, ref rAnt, false, true)) {
-						InsertRegister(output, rAnt);
+						newAdrs = InsertRegister(output, rAnt);
+						CompleteHash(hsAdrs, newAdrs);
 						return true;
 					}
 				}
