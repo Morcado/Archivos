@@ -24,9 +24,10 @@ namespace Proyecto {
 
             if (allAttributes) {
                 for (int i = 0; i < cant; i++) {
-                    TextBox a = new TextBox {
-                        Name = i.ToString(),
-                        Location = new Point(145, y)
+					TextBox a = new TextBox {
+						Name = i.ToString(),
+						Location = new Point(145, y),
+						TabIndex = i
                     };
                     Label b = new Label {
                         Text = inputs[i],
@@ -38,9 +39,10 @@ namespace Proyecto {
                 }
             }
             else {
-                TextBox a = new TextBox {
-                    Name = "key",
-                    Location = new Point(145, y)
+				TextBox a = new TextBox {
+					Name = "key",
+					Location = new Point(145, y),
+					TabIndex = 0
                 };
                 Label b = new Label {
                     Location = new Point(20, y + 3)

@@ -5,10 +5,12 @@ using System.Text;
 
 namespace Proyecto {
 	public partial class DataBase {
+		private const int pkms = 200;
+
 		/* Crea una estructura básica del índice seccundario. Crea una lista de 50 elementos
-		 * con el tamaño de la clave y el apuntador a la lista secundaria de esa clave */
+* con el tamaño de la clave y el apuntador a la lista secundaria de esa clave */
 		private void CreateFKStructure() {
-			for (int i = 0; i < 50; i++) {
+			for (int i = 0; i < pkms; i++) {
 				index.AddRange(new byte[key.FKSize]);
 				index.AddRange(BitConverter.GetBytes((long)-1));
 			}
@@ -150,7 +152,7 @@ namespace Proyecto {
 			if (indAux == -1) {
 				return;
 			}
-			index.RemoveRange((int)key.FKAdrsOnFile + ((key.FKSize + pointer) * 49), key.FKSize + pointer);
+			index.RemoveRange((int)key.FKAdrsOnFile + ((key.FKSize + pointer) * (pkms - 1)), key.FKSize + pointer);
 			index.InsertRange((int)indAux, new byte[key.FKSize + pointer]);
 		}
 
@@ -159,7 +161,7 @@ namespace Proyecto {
 			if (indAux == -1) {
 				return;
 			}
-			index.InsertRange(key.FKAdrsOnFile + ((key.FKSize + 8) * 49), new byte[key.FKSize + 8]);
+			index.InsertRange(key.FKAdrsOnFile + ((key.FKSize + 8) * pkms - 1), new byte[key.FKSize + 8]);
 			index.RemoveRange((int)indAux, key.FKSize + 8);
 		}
 	   // Recorre la lista secundaria hacia arriba

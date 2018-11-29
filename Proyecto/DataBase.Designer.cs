@@ -129,7 +129,7 @@
             this.fileToolStripMenuItem});
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
-			this.menuStrip1.Size = new System.Drawing.Size(800, 24);
+			this.menuStrip1.Size = new System.Drawing.Size(904, 24);
 			this.menuStrip1.TabIndex = 0;
 			this.menuStrip1.Text = "menuStrip1";
 			// 
@@ -148,33 +148,33 @@
 			// newToolStripMenuItem
 			// 
 			this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-			this.newToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.newToolStripMenuItem.Size = new System.Drawing.Size(127, 22);
 			this.newToolStripMenuItem.Text = "New";
 			this.newToolStripMenuItem.Click += new System.EventHandler(this.NewFile);
 			// 
 			// openToolStripMenuItem
 			// 
 			this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-			this.openToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.openToolStripMenuItem.Size = new System.Drawing.Size(127, 22);
 			this.openToolStripMenuItem.Text = "Open";
 			this.openToolStripMenuItem.Click += new System.EventHandler(this.OpenFile);
 			// 
 			// openCSVToolStripMenuItem
 			// 
 			this.openCSVToolStripMenuItem.Name = "openCSVToolStripMenuItem";
-			this.openCSVToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.openCSVToolStripMenuItem.Size = new System.Drawing.Size(127, 22);
 			this.openCSVToolStripMenuItem.Text = "Open CSV";
 			this.openCSVToolStripMenuItem.Click += new System.EventHandler(this.OpenCSV);
 			// 
 			// toolStripSeparator1
 			// 
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
+			this.toolStripSeparator1.Size = new System.Drawing.Size(124, 6);
 			// 
 			// exitToolStripMenuItem
 			// 
 			this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-			this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.exitToolStripMenuItem.Size = new System.Drawing.Size(127, 22);
 			this.exitToolStripMenuItem.Text = "Exit";
 			this.exitToolStripMenuItem.Click += new System.EventHandler(this.ExitToolStripMenuItem_Click);
 			// 
@@ -194,7 +194,7 @@
 			this.tabPage5.Location = new System.Drawing.Point(4, 22);
 			this.tabPage5.Name = "tabPage5";
 			this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage5.Size = new System.Drawing.Size(792, 385);
+			this.tabPage5.Size = new System.Drawing.Size(896, 564);
 			this.tabPage5.TabIndex = 5;
 			this.tabPage5.Text = "Foreign Key";
 			this.tabPage5.UseVisualStyleBackColor = true;
@@ -303,7 +303,7 @@
 			this.secondFKTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this.secondFKTable.Location = new System.Drawing.Point(500, 38);
 			this.secondFKTable.Name = "secondFKTable";
-			this.secondFKTable.Size = new System.Drawing.Size(156, 325);
+			this.secondFKTable.Size = new System.Drawing.Size(156, 504);
 			this.secondFKTable.TabIndex = 16;
 			// 
 			// mainFKTable
@@ -311,7 +311,7 @@
 			this.mainFKTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this.mainFKTable.Location = new System.Drawing.Point(223, 38);
 			this.mainFKTable.Name = "mainFKTable";
-			this.mainFKTable.Size = new System.Drawing.Size(256, 325);
+			this.mainFKTable.Size = new System.Drawing.Size(256, 504);
 			this.mainFKTable.TabIndex = 17;
 			// 
 			// label17
@@ -343,7 +343,7 @@
 			this.tabPage4.Location = new System.Drawing.Point(4, 22);
 			this.tabPage4.Name = "tabPage4";
 			this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage4.Size = new System.Drawing.Size(792, 385);
+			this.tabPage4.Size = new System.Drawing.Size(896, 564);
 			this.tabPage4.TabIndex = 4;
 			this.tabPage4.Text = "Primary Key";
 			this.tabPage4.UseVisualStyleBackColor = true;
@@ -452,7 +452,7 @@
 			this.secondPKTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this.secondPKTable.Location = new System.Drawing.Point(462, 39);
 			this.secondPKTable.Name = "secondPKTable";
-			this.secondPKTable.Size = new System.Drawing.Size(273, 325);
+			this.secondPKTable.Size = new System.Drawing.Size(403, 498);
 			this.secondPKTable.TabIndex = 10;
 			// 
 			// mainPKTable
@@ -460,7 +460,7 @@
 			this.mainPKTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this.mainPKTable.Location = new System.Drawing.Point(218, 39);
 			this.mainPKTable.Name = "mainPKTable";
-			this.mainPKTable.Size = new System.Drawing.Size(221, 325);
+			this.mainPKTable.Size = new System.Drawing.Size(221, 498);
 			this.mainPKTable.TabIndex = 10;
 			// 
 			// label9
@@ -489,7 +489,7 @@
 			this.tabPage3.Location = new System.Drawing.Point(4, 22);
 			this.tabPage3.Name = "tabPage3";
 			this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage3.Size = new System.Drawing.Size(792, 385);
+			this.tabPage3.Size = new System.Drawing.Size(896, 564);
 			this.tabPage3.TabIndex = 3;
 			this.tabPage3.Text = "Register";
 			this.tabPage3.UseVisualStyleBackColor = true;
@@ -530,7 +530,6 @@
 			// 
 			// buttonReg4
 			// 
-			this.buttonReg4.Enabled = false;
 			this.buttonReg4.Location = new System.Drawing.Point(24, 56);
 			this.buttonReg4.Name = "buttonReg4";
 			this.buttonReg4.Size = new System.Drawing.Size(97, 23);
@@ -564,7 +563,7 @@
 			this.registerTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this.registerTable.Location = new System.Drawing.Point(191, 38);
 			this.registerTable.Name = "registerTable";
-			this.registerTable.Size = new System.Drawing.Size(578, 325);
+			this.registerTable.Size = new System.Drawing.Size(672, 494);
 			this.registerTable.TabIndex = 8;
 			// 
 			// label5
@@ -587,7 +586,7 @@
 			this.tabPage1.Location = new System.Drawing.Point(4, 22);
 			this.tabPage1.Name = "tabPage1";
 			this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage1.Size = new System.Drawing.Size(792, 385);
+			this.tabPage1.Size = new System.Drawing.Size(896, 564);
 			this.tabPage1.TabIndex = 2;
 			this.tabPage1.Text = "Attribute";
 			this.tabPage1.UseVisualStyleBackColor = true;
@@ -673,7 +672,7 @@
 			this.attributeTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this.attributeTable.Location = new System.Drawing.Point(192, 38);
 			this.attributeTable.Name = "attributeTable";
-			this.attributeTable.Size = new System.Drawing.Size(573, 325);
+			this.attributeTable.Size = new System.Drawing.Size(677, 499);
 			this.attributeTable.TabIndex = 4;
 			// 
 			// label4
@@ -713,7 +712,7 @@
 			this.tabPage2.Location = new System.Drawing.Point(4, 22);
 			this.tabPage2.Name = "tabPage2";
 			this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage2.Size = new System.Drawing.Size(792, 385);
+			this.tabPage2.Size = new System.Drawing.Size(896, 564);
 			this.tabPage2.TabIndex = 1;
 			this.tabPage2.Text = "Entity";
 			this.tabPage2.UseVisualStyleBackColor = true;
@@ -797,7 +796,7 @@
 			this.entityTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this.entityTable.Location = new System.Drawing.Point(191, 38);
 			this.entityTable.Name = "entityTable";
-			this.entityTable.Size = new System.Drawing.Size(578, 323);
+			this.entityTable.Size = new System.Drawing.Size(671, 496);
 			this.entityTable.TabIndex = 3;
 			// 
 			// tabControl1
@@ -811,7 +810,7 @@
 			this.tabControl1.Location = new System.Drawing.Point(0, 27);
 			this.tabControl1.Name = "tabControl1";
 			this.tabControl1.SelectedIndex = 0;
-			this.tabControl1.Size = new System.Drawing.Size(800, 411);
+			this.tabControl1.Size = new System.Drawing.Size(904, 590);
 			this.tabControl1.TabIndex = 4;
 			// 
 			// tabPage6
@@ -822,14 +821,14 @@
 			this.tabPage6.Location = new System.Drawing.Point(4, 22);
 			this.tabPage6.Name = "tabPage6";
 			this.tabPage6.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage6.Size = new System.Drawing.Size(792, 385);
+			this.tabPage6.Size = new System.Drawing.Size(896, 564);
 			this.tabPage6.TabIndex = 6;
 			this.tabPage6.Text = "Dynamic Hash";
 			this.tabPage6.UseVisualStyleBackColor = true;
 			// 
 			// textBox1
 			// 
-			this.textBox1.Location = new System.Drawing.Point(33, 39);
+			this.textBox1.Location = new System.Drawing.Point(33, 24);
 			this.textBox1.Name = "textBox1";
 			this.textBox1.ReadOnly = true;
 			this.textBox1.Size = new System.Drawing.Size(80, 20);
@@ -839,9 +838,9 @@
 			// container
 			// 
 			this.container.Controls.Add(this.panel1);
-			this.container.Location = new System.Drawing.Point(294, 33);
+			this.container.Location = new System.Drawing.Point(294, 24);
 			this.container.Name = "container";
-			this.container.Size = new System.Drawing.Size(338, 323);
+			this.container.Size = new System.Drawing.Size(338, 510);
 			this.container.TabIndex = 1;
 			this.container.TabStop = false;
 			this.container.Text = "Boxes";
@@ -850,27 +849,28 @@
 			// 
 			this.panel1.Location = new System.Drawing.Point(6, 19);
 			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(326, 298);
+			this.panel1.Size = new System.Drawing.Size(326, 476);
 			this.panel1.TabIndex = 0;
 			// 
 			// hashTable
 			// 
 			this.hashTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-			this.hashTable.Location = new System.Drawing.Point(33, 59);
+			this.hashTable.Location = new System.Drawing.Point(33, 43);
 			this.hashTable.Name = "hashTable";
-			this.hashTable.Size = new System.Drawing.Size(228, 288);
+			this.hashTable.Size = new System.Drawing.Size(228, 491);
 			this.hashTable.TabIndex = 0;
 			// 
 			// DataBase
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(800, 437);
+			this.ClientSize = new System.Drawing.Size(904, 616);
 			this.Controls.Add(this.tabControl1);
 			this.Controls.Add(this.menuStrip1);
 			this.MainMenuStrip = this.menuStrip1;
 			this.Name = "DataBase";
-			this.Text = "Form1";
+			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+			this.Text = "Data Base";
 			this.Resize += new System.EventHandler(this.DataBase_Resize);
 			this.menuStrip1.ResumeLayout(false);
 			this.menuStrip1.PerformLayout();

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Proyecto {
 	public partial class DataBase {
-		private const int boxSize = 5;
+		private const int boxSize = 20;
 
 		private void CreateHashStructure() {
 			index.AddRange(BitConverter.GetBytes(prefix)); // Agrega el prefijo con 0
@@ -152,7 +152,17 @@ namespace Proyecto {
 									UnfoldBits();
 									long newBoxAdrs = CreateBox();
 									// Hace que apunte a la nueva caja
-									ReplaceBytes(index, adrs + 72 + 64, BitConverter.GetBytes(newBoxAdrs));
+
+									hashKey += "0";
+									long nAdrs = key.HashAdrsOnFile + 4;
+									for (int j = 0; j < Math.Pow(2, prefix); j++) {
+										string tmp = Encoding.UTF8.GetString(index.ToArray(), (int)nAdrs, prefix);
+										if (tmp.IndexOf(hashKey) == 0) {
+											break;
+										}
+										nAdrs += 72;
+									}
+									ReplaceBytes(index, nAdrs + 64 + 72, BitConverter.GetBytes(newBoxAdrs));
 									SetBoxPrefix(prefix, bxAdrs);
 									SetBoxPrefix(prefix, newBoxAdrs);
 									/*Hacer que el apuntador de abajo
@@ -160,15 +170,16 @@ namespace Proyecto {
 
 									List<int> entries = new List<int>();
 									List<long> addresses = new List<long>();
-									string bxBin = Encoding.UTF8.GetString(index.ToArray(), (int)adrs, prefix - boxPrefix + 1);
+									//string bxBin = Encoding.UTF8.GetString(index.ToArray(), (int)adrs + 72 + 72, prefix);
 									//string nbxString = Encoding.UTF8.GetString(index.ToArray(), (int), prefix);
 
 									ClearBox(bxAdrs, entries, addresses);
 
-									ReinsertHash(entries, addresses, bxAdrs, newBoxAdrs, bxBin);
+									ReinsertHash(entries, addresses, bxAdrs, newBoxAdrs, hashKey);
 
 									hsAdrs = -1;
 									InsertHashKey(v, ref hsAdrs);
+									return true;
 								}
 								else {
 									int boxPointer = GetPointers(adrs, bxAdrs);
@@ -191,17 +202,11 @@ namespace Proyecto {
 
 									ClearBox(bxAdrs, entries, addresses);
 
-									ReinsertHash(entries, addresses, bxAdrs, newBoxAdrs, bxBin);
+									ReinsertHash(entries, addresses, bxAdrs, newBoxAdrs, hashKey);
 									hsAdrs = -1;
 									InsertHashKey(v, ref hsAdrs);
-
+									return true;
 								}
-
-								// Hacer el clonado de cajas
-								// Hacer el desdobles de la lista principal
-								//long newBxadrs = CreateBox();
-								//InsertInBox(v, hsAdrs, boxAdrs);
-
 							}
 							// Insertar de forma ordenada
 							else {
@@ -226,7 +231,7 @@ namespace Proyecto {
 				gbAdrs = BitConverter.ToInt64(index.ToArray(), (int)adrs + 64);
 				adrs += 72;
 			} while (gbAdrs == bxAdrs);
-			return cont--;
+			return cont - 1;
 		}
 
 		private void ReinsertHash(List<int> entries, List<long> addresses, long bxAdrs, long nBox, string bxString) {

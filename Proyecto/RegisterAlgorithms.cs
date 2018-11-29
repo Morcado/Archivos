@@ -179,7 +179,8 @@ namespace Proyecto {
 			long prevIdxAdrs = -1, idxAdrsPK = -1, blockAdrs = -1, idxAdrsFK = -1, hsAdrs = -1;
 			bool resp = false, resp2 = false;
 			long currentRegAdrs = register.Count;
-
+			
+			
 			if (key.PK) {
 				resp = InsertPrimaryKey(output[key.PKAtribListIndex], ref prevIdxAdrs, ref idxAdrsPK, ref blockAdrs);
 
@@ -200,7 +201,7 @@ namespace Proyecto {
 					else { 
 						resp = SearchRegistry(output[key.searchKeyAttribIndex], ref rIndex, ref rAnt, false, true);
 
-						// Esta mal, buscar el registro anterior a 
+						// Esta mal, buscar el registro anterior al pasado
 						if (register.Count >= 8 + registerSize + 8) {
 							rAnt = register.Count - 8 - registerSize - 8;
 							newAdrs = InsertRegister(output, rAnt);
@@ -218,29 +219,35 @@ namespace Proyecto {
 				}
 				return false;
 			}
-			if (key.FK) {
-				return InsertForeignKey(output[key.FKAtribListIndex], ref idxAdrsPK);
-			}
 			if (key.Hash) {
 				// Insertar con hash
 				resp = InsertHashKey(output[key.HashAtribListIndex], ref hsAdrs);
+				if (resp) {
+					if (key.FK) {
+						resp2 = InsertForeignKey(output[key.FKAtribListIndex], ref idxAdrsFK);
+					}
 
-				if (key.searchKey) {
-					if (!SearchRegistry(output[key.searchKeyAttribIndex], ref rIndex, ref rAnt, false, false)) {
-						newAdrs = InsertRegister(output, rAnt);
-						CompleteHash(hsAdrs, newAdrs);
-						//ReplaceBytes(index, hsAdrs + 4, rAnt);
-						return true;
+					if (key.searchKey) {
+						if (!SearchRegistry(output[key.searchKeyAttribIndex], ref rIndex, ref rAnt, false, false)) {
+							newAdrs = InsertRegister(output, rAnt);
+						}
 					}
-				}
-				else {
-					if (!SearchRegistry(output[key.searchKeyAttribIndex], ref rIndex, ref rAnt, false, true)) {
-						newAdrs = InsertRegister(output, rAnt);
-						CompleteHash(hsAdrs, newAdrs);
-						return true;
+					else {
+						if (!SearchRegistry(output[key.searchKeyAttribIndex], ref rIndex, ref rAnt, false, true)) {
+							newAdrs = InsertRegister(output, rAnt);
+						}
 					}
+					CompleteHash(hsAdrs, newAdrs);
+					if (key.FK) {
+						CompleteFK(idxAdrsFK, newAdrs);
+					}
+					return true;
 				}
 			}
+			if (key.FK) {
+				return InsertForeignKey(output[key.FKAtribListIndex], ref idxAdrsPK);
+			}
+
 			if (key.searchKey) {
 				if (key.searchKey) {
 					if (!SearchRegistry(output[key.searchKeyAttribIndex], ref rIndex, ref rAnt, false, false)) {

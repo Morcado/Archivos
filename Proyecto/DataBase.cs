@@ -178,98 +178,53 @@ namespace Proyecto {
 				data.Clear();
 				register.Clear();
 				index.Clear();
-				
 
+				string[] lines;
 				try {
-					// Crea el archivo del diccionario de datos
-					bw = new BinaryWriter(new FileStream(Application.StartupPath + "\\examples\\" + open.SafeFileName + ".dat", FileMode.Create));
-					bw.Close();
-					bw = new BinaryWriter(new FileStream(Application.StartupPath + "\\examples\\" + open.SafeFileName + ".idx", FileMode.Create));
-					bw.Close();
-				}
-				catch (IOException ex) {
-					Console.WriteLine(ex.Message + "\n Cannot create file.");
-					return;
-				}
-				InitializeTables();
-
-				dictionaryName = open.FileName;
-				data.AddRange(BitConverter.GetBytes((long)(-1)));
-				head = -1;
-
-				selectedEntityAdrs = 8;
-
-				AddEntity("Alumno.csv");
-				AddAttribute("Clave", 'I', 4, 2);
-				AddAttribute("Nombre", 'C', 40, 3);
-				types = new List<char> {'I', 'C'};
-				sizes = new List<int> {4, 40};
-
-
-				long idxAdrs = index.Count;
-				key.PK = key.FK = true;
-				key.PKIsChar = false;
-				key.FKIsChar = true;
-				key.PKSize = 4;
-				key.FKSize = 40;
-				key.attribPKIndexAdrs = 70; 
-				key.attribFKIndexAdrs = 134;
-				key.PKAtribListIndex = 0;
-				key.FKAtribListIndex = 1;
-
-				registerSize = 44;
-				InitializeFKIndexTable();
-				InitializePKIndexTable();
-				InitializeRegisterTable();
-
-				if (key.PK || key.FK || key.Hash) {
-					if (key.PK) {
-						key.PKAdrsOnFile = index.Count;
-						CreatePKStructure();
-						ReplaceBytes(data, key.attribPKIndexAdrs + 48, BitConverter.GetBytes(idxAdrs));
-						InitializePKIndexTable();
-					}
-					idxAdrs = index.Count;
-					if (key.FK) {
-						key.FKAdrsOnFile = index.Count;
-						CreateFKStructure();
-						ReplaceBytes(data, key.attribFKIndexAdrs + 48, BitConverter.GetBytes(idxAdrs));
-						InitializeFKIndexTable();
-						// Si el proyecto lo requiere, implementar un ciclo en donde se vayan agregando todos
-						// los índices secundarios en el archivo de indices
-					}
-					if (key.Hash) {
-						key.HashAdrsOnFile = index.Count;
-						CreateHashStructure();
-						ReplaceBytes(data, key.attribHashIndexAdrs + 48, BitConverter.GetBytes(idxAdrs));
-						InitializeHashTable();
-					}
-
-				}
-
-				StreamReader reader;
-				try {
-					reader = new StreamReader(open.FileName);
-
+					//reader = new StreamReader(open.FileName);
+					lines = File.ReadAllLines(open.FileName);
 				}
 				catch (IOException ex) {
 					MessageBox.Show(ex.ToString());
 					return;
 				}
-				while (!reader.EndOfStream) {
-					string line = reader.ReadLine();
-					List<string> values = line.Split(',').ToList();
-					values[0] = values[0].Substring(2);
-					AddRegister(values);
-						
+				bool once = false;
+				foreach (string line in lines) {
+					if (!once) {
+						string nnn = "";
+						if (InitializeCSV(line, ref nnn)) {
+							dictionaryName = nnn;
+							try {
+								// Crea el archivo del diccionario de datos
+								bw = new BinaryWriter(new FileStream(open.InitialDirectory + nnn + ".bin", FileMode.Create));
+								bw.Close();
+								bw = new BinaryWriter(new FileStream(open.InitialDirectory + nnn + ".idx", FileMode.Create));
+								bw.Close();
+							}
+							catch (IOException ex) {
+								Console.WriteLine(ex.Message + "\n Cannot create file.");
+								return;
+							}
+						}
+						else {
+							return;
+						}
+						once = true;
+					}
+					string[] values = line.Split(',');
+					while (values[0][0] == '0') {
+						values[0] = values[0].Substring(1);
+					}
+
+					AddRegister(values.ToList());
 				}
-				reader.Close();
+
 				
 				UpdateEntityTable();
 				UpdateAttribTable();
 				UpdateRegisterTable();
 				WriteDictionary();
-				WriteRegisterFile(open.SafeFileName);
+				WriteRegisterFile(dictionaryName);
 				if (key.PK || key.FK || key.Hash) {
 					if (key.PK) {
 						UpdateMainPKTable();
@@ -279,10 +234,113 @@ namespace Proyecto {
 					}
 					if (key.Hash) {
 						UpdateHashTable();
+						UpdateHashBoxes();
 					}
-					WriteIndexFile(open.SafeFileName);
+					WriteIndexFile(dictionaryName);
 				}
 			}
+		}
+
+		private bool InitializeCSV(string line, ref string nnn) {
+			head = -1;
+			data.AddRange(BitConverter.GetBytes((long)-1)); // Inicializa la cabecera de entidades y atributos
+			selectedEntityAdrs = 8;
+			entityTable.Columns.Clear();
+			attributeTable.Columns.Clear();
+			InitializeTables();
+
+			MessageBox.Show("Please choose a name for the new entity of the CSV");
+			NewEntityDialog ne = new NewEntityDialog(0);
+			if (ne.ShowDialog() == DialogResult.OK) {
+				AddEntity(ne.name);
+				nnn = ne.name;
+			}
+			else {
+				return false;
+			}
+
+			types = new List<char>();
+			sizes = new List<int>();
+			string[] values = line.Split(',');
+			MessageBox.Show("I have found " + values.Length.ToString() + " values separated by a comma. Please create an attribute for each value. Select one primary key (Hash or List)");
+			int atribA = 70, auxSearchKey = 0;
+			for (int i = 0; i < values.Length; i++) {
+				NewAttributeDialog na = new NewAttributeDialog(0);
+				if (na.ShowDialog() == DialogResult.OK) {
+					AddAttribute(na.name, na.type, na.length, na.indexType);
+					types.Add(na.type);
+					sizes.Add(na.length);
+					registerSize += na.length;
+
+					if (na.indexType != 1) {
+						auxSearchKey += na.length;
+					}
+					switch (na.indexType) {
+						case 1:
+							key.searchKey = true;
+							key.searchKeyIsChar = na.type == 'C' ? true : false;
+							key.searchKeyAttribIndex = i;
+							key.searchKeyPos = auxSearchKey;
+							key.searchKeySize = na.length;
+							break;
+						case 2: // indice primario lista
+							key.PK = true;
+							key.PKIsChar = na.type == 'C' ? true : false;
+							key.PKSize = na.length;
+							key.attribPKIndexAdrs = atribA;
+							key.PKAtribListIndex = i;
+							break;
+						case 3: // indice secundario
+							key.FK = true;
+							key.FKIsChar = na.type == 'C' ? true : false;
+							key.FKSize = na.length;
+							key.attribFKIndexAdrs = atribA;
+							key.FKAtribListIndex = i;
+							break;
+						case 4: // indice hash
+							key.Hash = true;
+							key.attribHashIndexAdrs = atribA;
+							key.HashAtribListIndex = i;
+							break;
+
+						default:
+							break;
+					}
+				}
+				else {
+					return false;
+				}
+				atribA += 64;
+			}
+			long idxAdrs = index.Count;
+
+			InitializeRegisterTable();
+
+			if (key.PK || key.FK || key.Hash) {
+				if (key.PK) {
+					key.PKAdrsOnFile = index.Count;
+					CreatePKStructure();
+					ReplaceBytes(data, key.attribPKIndexAdrs + 48, BitConverter.GetBytes(idxAdrs));
+					InitializePKIndexTable();
+				}
+				idxAdrs = index.Count;
+				if (key.FK) {
+					key.FKAdrsOnFile = index.Count;
+					CreateFKStructure();
+					ReplaceBytes(data, key.attribFKIndexAdrs + 48, BitConverter.GetBytes(idxAdrs));
+					InitializeFKIndexTable();
+					// Si el proyecto lo requiere, implementar un ciclo en donde se vayan agregando todos
+					// los índices secundarios en el archivo de indices
+				}
+				if (key.Hash) {
+					key.HashAdrsOnFile = index.Count;
+					CreateHashStructure();
+					ReplaceBytes(data, key.attribHashIndexAdrs + 48, BitConverter.GetBytes(idxAdrs));
+					InitializeHashTable();
+				}
+
+			}
+			return true;
 		}
 
 		// Cierra la aplicación
@@ -1015,7 +1073,7 @@ namespace Proyecto {
 				Name = "Sublist address", Width = 60
 			};
 			mainFKTable.Columns.Add(cl2);
-			for (int i = 0; i < 50; i++) {
+			for (int i = 0; i < pkms; i++) {
 				mainFKTable.Rows.Add(-1, -1);
 			}
 
@@ -1187,7 +1245,7 @@ namespace Proyecto {
 		 
 			secondFKTable.Rows.Clear();
 			long adrs = -1;
-			for (int i = 0; i < 50; i++) {
+			for (int i = 0; i < pkms; i++) {
 				if (key.FKIsChar) {
 					string name = Encoding.UTF8.GetString(indexPrint, key.FKAdrsOnFile + (i * (key.FKSize + 8)), key.FKSize).Replace("~", "").TrimEnd('\0');
 					mainFKTable.Rows[i].Cells[0].Value = name;
@@ -1225,7 +1283,7 @@ namespace Proyecto {
 		}
 
 		private void NextFKPage(object sender, EventArgs e) {
-			int cant = 50;
+			int cant = pkms;
 			if (pageFK < cant) {
 				buttonPrevFKPage.Enabled = true;
 				pageFK++;
@@ -1310,16 +1368,19 @@ namespace Proyecto {
 		 * en un groupbox, y son varios datagrid */ 
 		private void UpdateHashBoxes() {
 			byte[] indexPrint = index.ToArray();
-			long adrs = key.HashAdrsOnFile + 4, prevBxAdrs = -1;
+			long adrs = key.HashAdrsOnFile + 4;
 			int yStart = 10;
 			panel1.Controls.Clear();
+			List<long> direcciones = new List<long>();
 			for (int i = 0; i < Math.Pow(2, prefix); i++) {
 				long bxAdrs = BitConverter.ToInt64(indexPrint, (int)adrs + 64);
-				if (bxAdrs == prevBxAdrs) {
+				if (direcciones.Contains(bxAdrs)) {
+					adrs += 72;
 					continue;
 				}
-
-				prevBxAdrs = bxAdrs;
+				else {
+					direcciones.Add(bxAdrs);
+				}
 				if (bxAdrs != -1) {
 					Label l1 = new Label {
 						Text = bxAdrs.ToString(),
@@ -1391,7 +1452,7 @@ namespace Proyecto {
 			}
 			else {
 				for (int i = 0; i < Math.Pow(2, prefix); i++) {
-					string bit = Encoding.UTF8.GetString(indexPrint, (int)adrs, prefix);
+					string bit = Encoding.UTF8.GetString(index.ToArray(), (int)adrs, prefix + 1);
 					long hashAdrs = BitConverter.ToInt64(indexPrint, (int)adrs + 64);
 					hashTable.Rows.Add(bit, hashAdrs);
 					adrs += 72;
