@@ -178,7 +178,7 @@ namespace Proyecto {
 				data.Clear();
 				register.Clear();
 				index.Clear();
-
+				string otherName = "";
 				string[] lines;
 				try {
 					//reader = new StreamReader(open.FileName);
@@ -193,12 +193,13 @@ namespace Proyecto {
 					if (!once) {
 						string nnn = "";
 						if (InitializeCSV(line, ref nnn)) {
-							dictionaryName = nnn;
+							otherName = nnn;
+							dictionaryName = Application.StartupPath + "\\examples\\" + nnn + ".bin";
 							try {
 								// Crea el archivo del diccionario de datos
-								bw = new BinaryWriter(new FileStream(open.InitialDirectory + nnn + ".bin", FileMode.Create));
+								bw = new BinaryWriter(new FileStream(Application.StartupPath + "\\examples\\" + nnn + ".bin", FileMode.Create));
 								bw.Close();
-								bw = new BinaryWriter(new FileStream(open.InitialDirectory + nnn + ".idx", FileMode.Create));
+								bw = new BinaryWriter(new FileStream(Application.StartupPath + "\\examples\\" + nnn + ".idx", FileMode.Create));
 								bw.Close();
 							}
 							catch (IOException ex) {
@@ -224,7 +225,7 @@ namespace Proyecto {
 				UpdateAttribTable();
 				UpdateRegisterTable();
 				WriteDictionary();
-				WriteRegisterFile(dictionaryName);
+				WriteRegisterFile(otherName);
 				if (key.PK || key.FK || key.Hash) {
 					if (key.PK) {
 						UpdateMainPKTable();
@@ -236,7 +237,7 @@ namespace Proyecto {
 						UpdateHashTable();
 						UpdateHashBoxes();
 					}
-					WriteIndexFile(dictionaryName);
+					WriteIndexFile(otherName);
 				}
 			}
 		}
@@ -324,6 +325,12 @@ namespace Proyecto {
 					InitializePKIndexTable();
 				}
 				idxAdrs = index.Count;
+				if (key.Hash) {
+					key.HashAdrsOnFile = index.Count;
+					CreateHashStructure();
+					ReplaceBytes(data, key.attribHashIndexAdrs + 48, BitConverter.GetBytes(idxAdrs));
+					InitializeHashTable();
+				}
 				if (key.FK) {
 					key.FKAdrsOnFile = index.Count;
 					CreateFKStructure();
@@ -332,12 +339,7 @@ namespace Proyecto {
 					// Si el proyecto lo requiere, implementar un ciclo en donde se vayan agregando todos
 					// los índices secundarios en el archivo de indices
 				}
-				if (key.Hash) {
-					key.HashAdrsOnFile = index.Count;
-					CreateHashStructure();
-					ReplaceBytes(data, key.attribHashIndexAdrs + 48, BitConverter.GetBytes(idxAdrs));
-					InitializeHashTable();
-				}
+
 
 			}
 			return true;
@@ -979,6 +981,12 @@ namespace Proyecto {
 						InitializePKIndexTable();
 					}
 					idxAdrs = index.Count;
+					if (key.Hash) {
+						key.HashAdrsOnFile = index.Count;
+						CreateHashStructure();
+						ReplaceBytes(data, key.attribHashIndexAdrs + 48, BitConverter.GetBytes(idxAdrs));
+						InitializeHashTable();
+					}
 					if (key.FK) {
 						key.FKAdrsOnFile = index.Count;
 						CreateFKStructure();
@@ -987,12 +995,7 @@ namespace Proyecto {
 						// Si el proyecto lo requiere, implementar un ciclo en donde se vayan agregando todos
 						// los índices secundarios en el archivo de indices
 					}
-					if (key.Hash) {
-						key.HashAdrsOnFile = index.Count;
-						CreateHashStructure();
-						ReplaceBytes(data, key.attribHashIndexAdrs+ 48, BitConverter.GetBytes(idxAdrs));
-						InitializeHashTable();
-					}
+
 
 				}
 
