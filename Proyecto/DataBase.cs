@@ -1425,15 +1425,30 @@ namespace Proyecto {
 					int data = BitConverter.ToInt32(indexPrint, (int)bxAdrs);
 					long regAdrs = BitConverter.ToInt32(indexPrint, (int)bxAdrs + 4);
 					int count = 0;
-					while (/*data != -1 &&*/ count < boxSize) { // *****sin count, imprimir dinamicamente*****
+					while (count < boxSize) {
 						dg.Rows.Add(data, regAdrs);
 						count++;
 						if (count == boxSize) {
-							break;
+							long nextBox = BitConverter.ToInt64(indexPrint, (int)bxAdrs + 12);
+							//dg.Rows.Add(nextBox, nextBox);
+							if (nextBox != -1) {
+								count = 0;
+								bxAdrs = nextBox + 4;
+								dg.Rows.Add("------", "------");
+								data = BitConverter.ToInt32(indexPrint, (int)bxAdrs);
+								regAdrs = BitConverter.ToInt32(indexPrint, (int)bxAdrs + 4);
+								continue;
+							}
+							else {
+								break;
+							}
 						}
 						bxAdrs += 12;
 						data = BitConverter.ToInt32(indexPrint, (int)bxAdrs);
 						regAdrs = BitConverter.ToInt32(indexPrint, (int)bxAdrs + 4);
+						
+
+						
 					}
 
 					panel1.Controls.Add(tb);

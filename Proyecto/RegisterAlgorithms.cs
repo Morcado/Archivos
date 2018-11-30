@@ -321,9 +321,6 @@ namespace Proyecto {
 					ShiftSecondFKUp(idxAdrs, blockAdrs);
 				}
 			}
-			if (key.Hash) {
-				//Borrar hash
-			}
 			return rIndex;
 		}
 

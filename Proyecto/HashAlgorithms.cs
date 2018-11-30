@@ -29,6 +29,9 @@ namespace Proyecto {
 				index.AddRange(BitConverter.GetBytes((long)-1));
 			}
 
+			//Cajon de desbordamiento
+			index.AddRange(BitConverter.GetBytes((long)-1));
+
 			return boxAdrs;
 		}
 
@@ -105,6 +108,8 @@ namespace Proyecto {
 		private bool InsertHashKey(string v, ref long hsAdrs) {
 			// Convierte un digito de un numero en binario
 			int c = 0;
+			List<int> entries;
+			List<long> addresses;
 			string binary = IntToBinaryString(v[c++]);
 			while (binary.Length < prefix) {
 				binary += IntToBinaryString(v[c++]);
@@ -121,8 +126,8 @@ namespace Proyecto {
 						SetBoxPrefix(1, bxAdrs);
 						SetBoxPrefix(1, nBox);
 
-						List<int> entries = new List<int>();
-						List<long> addresses = new List<long>();
+						entries = new List<int>();
+						addresses = new List<long>();
 						ClearBox(bxAdrs, entries, addresses);
 
 						ReinsertHash(entries, addresses, bxAdrs, nBox, "0");
@@ -149,6 +154,30 @@ namespace Proyecto {
 								// Contar cuantos apuntadores apuntan a la caja actual
 								int boxPrefix = GetBoxPrefix(bxAdrs);
 								if (boxPrefix == prefix) {
+									if (boxPrefix == 6) {
+										long nextBox = BitConverter.ToInt64(index.ToArray(), (int)bxAdrs + (12 * boxSize) + 4);
+										if (nextBox == -1) {
+											long newNext = CreateBox();
+											ReplaceBytes(index, bxAdrs + (12 * boxSize) + 4, BitConverter.GetBytes(newNext));
+										}
+										
+										if (!BoxIsFull(nextBox)) {
+											hsAdrs = -1;
+											if (!FindInBox(ref hsAdrs, nextBox, v)) {
+												InsertInBox(v, hsAdrs, nextBox);
+												return true;
+											}
+											else {
+												return false;
+											}
+										}
+										
+										//entries = new List<int>();
+										//addresses = new List<long>();
+										//ClearBox(bxAdrs, entries, addresses);
+										//ReinsertBoxes(entries, addresses, bxAdrs, nextBox);
+										return true;
+									}
 									UnfoldBits();
 									long newBoxAdrs = CreateBox();
 									// Hace que apunte a la nueva caja
@@ -168,8 +197,8 @@ namespace Proyecto {
 									/*Hacer que el apuntador de abajo
 									apunte a la nueva caja*/
 
-									List<int> entries = new List<int>();
-									List<long> addresses = new List<long>();
+									entries = new List<int>();
+									addresses = new List<long>();
 									//string bxBin = Encoding.UTF8.GetString(index.ToArray(), (int)adrs + 72 + 72, prefix);
 									//string nbxString = Encoding.UTF8.GetString(index.ToArray(), (int), prefix);
 
@@ -195,8 +224,8 @@ namespace Proyecto {
 										secondHalf += 72;
 									}
 
-									List<int> entries = new List<int>();
-									List<long> addresses = new List<long>();
+									entries = new List<int>();
+									addresses = new List<long>();
 									string bxBin = Encoding.UTF8.GetString(index.ToArray(), (int)adrs, prefix - boxPrefix + 1);
 									//string nbxString = Encoding.UTF8.GetString(index.ToArray(), (int), prefix);
 
@@ -222,6 +251,7 @@ namespace Proyecto {
 			return false;
 
 		}
+
 
 		private int GetPointers(long adrs, long bxAdrs) {
 			int cont = 0;
@@ -270,7 +300,7 @@ namespace Proyecto {
 			if (value == -1) {
 				return;
 			}
-
+			
 			index.RemoveRange((int)boxAdrs + (12 * (boxSize - 1)), 12);
 			index.InsertRange((int)hsAdrs, new byte[12]);
 		}
@@ -306,6 +336,7 @@ namespace Proyecto {
 			while (keyToSearch > data && data != -1 && ount < boxSize) {
 				ount++;
 				if (ount == boxSize) {
+					
 					break;
 				}
 				hsAdrs += 12;
@@ -315,6 +346,7 @@ namespace Proyecto {
 					return true;
 				}
 			}
+
 			// Si no se encuentra, regresa la dirección donde debe de estar
 			return false;
 		}

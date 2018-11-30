@@ -8,7 +8,7 @@ namespace Proyecto {
 		private const int pkms = 200;
 
 		/* Crea una estructura básica del índice seccundario. Crea una lista de 50 elementos
-* con el tamaño de la clave y el apuntador a la lista secundaria de esa clave */
+		 * con el tamaño de la clave y el apuntador a la lista secundaria de esa clave */
 		private void CreateFKStructure() {
 			for (int i = 0; i < pkms; i++) {
 				index.AddRange(new byte[key.FKSize]);
