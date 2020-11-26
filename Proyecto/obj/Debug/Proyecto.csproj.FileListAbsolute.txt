@@ -30,3 +30,15 @@ C:\Users\Morcado\Desktop\Archivos\Proyecto\obj\Debug\Proyecto.csproj.CoreCompile
 C:\Users\Morcado\Desktop\Archivos\Proyecto\obj\Debug\Proyecto.NewEntityDialog.resources
 C:\Users\Morcado\Desktop\Archivos\Proyecto\obj\Debug\Proyecto.NewAttributeDialog.resources
 C:\Users\Morcado\Desktop\Archivos\Proyecto\obj\Debug\Proyecto.csprojAssemblyReference.cache
+C:\Users\Morcado\Documents\GitHub\simple-dbms\Proyecto\bin\Debug\Proyecto.exe
+C:\Users\Morcado\Documents\GitHub\simple-dbms\Proyecto\bin\Debug\Proyecto.pdb
+C:\Users\Morcado\Documents\GitHub\simple-dbms\Proyecto\obj\Debug\Proyecto.csprojAssemblyReference.cache
+C:\Users\Morcado\Documents\GitHub\simple-dbms\Proyecto\obj\Debug\Proyecto.NewEntityDialog.resources
+C:\Users\Morcado\Documents\GitHub\simple-dbms\Proyecto\obj\Debug\Proyecto.DataBase.resources
+C:\Users\Morcado\Documents\GitHub\simple-dbms\Proyecto\obj\Debug\Proyecto.NewAttributeDialog.resources
+C:\Users\Morcado\Documents\GitHub\simple-dbms\Proyecto\obj\Debug\Proyecto.Properties.Resources.resources
+C:\Users\Morcado\Documents\GitHub\simple-dbms\Proyecto\obj\Debug\Proyecto.RegisterDialog.resources
+C:\Users\Morcado\Documents\GitHub\simple-dbms\Proyecto\obj\Debug\Proyecto.csproj.GenerateResource.cache
+C:\Users\Morcado\Documents\GitHub\simple-dbms\Proyecto\obj\Debug\Proyecto.csproj.CoreCompileInputs.cache
+C:\Users\Morcado\Documents\GitHub\simple-dbms\Proyecto\obj\Debug\Proyecto.exe
+C:\Users\Morcado\Documents\GitHub\simple-dbms\Proyecto\obj\Debug\Proyecto.pdb
